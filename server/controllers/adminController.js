@@ -3,7 +3,7 @@ const pool = require('../db');
 class AdminController {
 
     // 1. Получить данные для дашборда (ТОЛЬКО активная конференция)
-        // 1. Получить данные для дашборда
+    // 1. Получить данные для дашборда
     async getDashboardData(req, res) {
         try {
             const manager_id = req.user;
@@ -49,7 +49,7 @@ class AdminController {
 
             // Возвращаем данные. На фронте можно еще раз отсортировать, т.к. DISTINCT ON требует специфической сортировки.
             // Но обычно этого достаточно.
-            
+
             // Если порядок важен (по дате подачи), пересортируем массив в JS:
             const sortedSubmissions = submissionsRes.rows.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 

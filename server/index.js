@@ -38,3 +38,11 @@ app.use('/uploads', express.static('uploads')); // или path.join(__dirname, '
 app.listen(5000, () => {
     console.log("server has started on port 5000");
 });
+
+// Отлавливаем скрытые ошибки, из-за которых сервер может тихо падать
+process.on('uncaughtException', (err) => {
+    console.error('UNCAUGHT EXCEPTION:', err);
+});
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('UNHANDLED REJECTION:', reason);
+});

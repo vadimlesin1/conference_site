@@ -17,6 +17,7 @@ import NewsPage from './pages/NewsPage';
 // 1. ИМПОРТИРУЕМ НОВЫЕ СТРАНИЦЫ
 import Archive from './pages/Archive';
 import ArchiveDetails from './pages/ArchiveDetails';
+import PendingVerification from './pages/PendingVerification';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -56,6 +57,8 @@ function App() {
             path="/register" 
             element={!isAuthenticated ? <Register setAuth={setAuth} /> : <Navigate to="/dashboard" />} 
           />
+
+          <Route path="/pending-verification" element={<PendingVerification />} />
 
           {/* Защищенные маршруты (Личный кабинет) */}
           <Route 

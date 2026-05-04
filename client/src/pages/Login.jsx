@@ -32,7 +32,11 @@ const Login = () => {
                 localStorage.setItem("token", parseRes.token);
                 window.location.href = "/dashboard";
             } else {
-                setError(parseRes || 'Не удалось войти в систему');
+                if (parseRes === "Подтвердите email перед входом") {
+                    window.location.href = "/pending-verification";
+                } else {
+                    setError(parseRes || 'Не удалось войти в систему');
+                }
             }
         } catch (err) {
             setError('Ошибка сети. Проверьте подключение.');

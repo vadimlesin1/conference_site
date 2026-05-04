@@ -19,6 +19,8 @@ const Register = () => {
         password_repeat: ''
     });
 
+    const [isLoading, setIsLoading] = useState(false);
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -30,21 +32,21 @@ const Register = () => {
             return;
         }
 
+        setIsLoading(true);
         try {
             const response = await registerUser(formData);
             const parseRes = await response.json();
 
             if (response.ok) {
-                if (parseRes.token) {
-                    localStorage.setItem("token", parseRes.token);
-                }
-                window.location.href = "/dashboard";
+                window.location.href = "/pending-verification"; 
             } else {
                 alert("Ошибка: " + parseRes);
             }
         } catch (err) {
             console.error(err.message);
             alert("Ошибка соединения с сервером");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -206,7 +208,9 @@ const Register = () => {
                         </div>
 
                         <div style={fullWidthStyle}>
-                            <button type="submit" style={btnStyle}>Зарегистрироваться</button>
+                            <button type="submit" disabled={isLoading} style={{...btnStyle, opacity: isLoading ? 0.7 : 1, cursor: isLoading ? 'not-allowed' : 'pointer'}}>
+                                {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
+                            </button>
                         </div>
                     </form>
                 </div>
