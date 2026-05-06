@@ -67,13 +67,13 @@ const PendingVerification = () => {
     return (
         <div style={pageStyle}>
             <Navbar />
-            
+
             <div style={containerStyle}>
                 <div style={cardStyle}>
                     <div style={iconStyle}>✉️</div>
                     <h2 style={titleStyle}>Остался один шаг!</h2>
                     <p style={textStyle}>
-                        Мы отправили письмо с ссылкой для подтверждения на вашу почту. 
+                        Мы отправили письмо с ссылкой для подтверждения на вашу почту.
                         Пожалуйста, проверьте почтовый ящик (и папку «Спам») и перейдите по ссылке, чтобы завершить регистрацию.
                     </p>
                     <Link to="/login" style={btnStyle}>Перейти ко входу</Link>

@@ -9,7 +9,7 @@ class SubmissionController {
         try {
             const { title, abstract, section_id } = req.body;
             const file_url = req.file ? `/uploads/${req.file.filename}` : null;
-            const user_id = req.user; 
+            const user_id = req.user;
 
             // 1. Ищем активную конференцию (Берем самую свежую по дате начала)
             const confRes = await pool.query(`
@@ -29,7 +29,7 @@ class SubmissionController {
             // 2. ПРОВЕРКА ДАТЫ (Используем местное время, а не UTC)
             const now = new Date();
             const conferenceDate = new Date(conference.date_start);
-            
+
             // Сбрасываем время в 00:00:00, чтобы сравнивать только дни
             now.setHours(0, 0, 0, 0);
             conferenceDate.setHours(0, 0, 0, 0);

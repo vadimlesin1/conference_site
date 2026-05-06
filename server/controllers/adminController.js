@@ -1,4 +1,6 @@
 const pool = require('../db');
+const transporter = require('../mailer');
+const { acceptedTemplate, rejectedTemplate } = require('../emailTemplates');
 
 class AdminController {
 
@@ -71,10 +73,38 @@ class AdminController {
             const { id } = req.params;
             const { status } = req.body;
 
+            // Получаем данные о докладе и email участника
+            const submissionRes = await pool.query(
+                `SELECT s.title, u.email, u.first_name, u.last_name
+                 FROM submissions s
+                 JOIN users u ON s.user_id = u.id
+                 WHERE s.id = $1`,
+                [id]
+            );
+
             await pool.query(
                 "UPDATE submissions SET status = $1 WHERE id = $2",
                 [status, id]
             );
+
+            // Отправляем email участнику
+            if (submissionRes.rows.length > 0) {
+                const { email, first_name, last_name, title } = submissionRes.rows[0];
+
+                const isAccepted = status === 'accepted';
+                const statusEmoji = isAccepted ? '✅' : '❌';
+                const statusText = isAccepted ? 'принят' : 'отклонён';
+                const htmlBody = isAccepted
+                    ? acceptedTemplate({ first_name, last_name, title })
+                    : rejectedTemplate({ first_name, last_name, title });
+
+                await transporter.sendMail({
+                    from: process.env.EMAIL_USER,
+                    to: email,
+                    subject: `${statusEmoji} Ваш доклад ${statusText} — ${title}`,
+                    html: htmlBody
+                });
+            }
 
             res.json("Статус обновлен");
         } catch (err) {

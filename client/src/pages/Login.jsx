@@ -8,7 +8,7 @@ const Login = () => {
         email: '',
         password: ''
     });
-    
+
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -23,7 +23,7 @@ const Login = () => {
         e.preventDefault();
         setError('');
         setIsLoading(true);
-        
+
         try {
             const response = await loginUser(email, password);
             const parseRes = await response.json();
@@ -167,7 +167,7 @@ const Login = () => {
     return (
         <div style={pageStyle}>
             <Navbar />
-            
+
             <div style={containerStyle}>
                 <div style={cardStyle}>
                     <div style={headerStyle}>
@@ -185,13 +185,13 @@ const Login = () => {
                     <form onSubmit={onSubmitForm}>
                         <div style={formGroupStyle}>
                             <label style={labelStyle}>Электронная почта</label>
-                            <input 
-                                type="email" 
-                                name="email" 
-                                placeholder="name@example.com" 
-                                value={email} 
-                                onChange={onChange} 
-                                required 
+                            <input
+                                type="email"
+                                name="email"
+                                placeholder="name@example.com"
+                                value={email}
+                                onChange={onChange}
+                                required
                                 disabled={isLoading}
                                 style={inputStyle}
                                 onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
@@ -203,13 +203,13 @@ const Login = () => {
 
                         <div style={formGroupStyle}>
                             <label style={labelStyle}>Пароль</label>
-                            <input 
-                                type="password" 
-                                name="password" 
-                                placeholder="••••••••" 
-                                value={password} 
-                                onChange={onChange} 
-                                required 
+                            <input
+                                type="password"
+                                name="password"
+                                placeholder="••••••••"
+                                value={password}
+                                onChange={onChange}
+                                required
                                 disabled={isLoading}
                                 style={inputStyle}
                                 onFocus={(e) => Object.assign(e.target.style, inputFocusStyle)}
@@ -219,8 +219,8 @@ const Login = () => {
                             />
                         </div>
 
-                        <button 
-                            type="submit" 
+                        <button
+                            type="submit"
                             disabled={isLoading}
                             style={btnStyle}
                         >
@@ -229,7 +229,7 @@ const Login = () => {
                     </form>
 
                     <div style={footerStyle}>
-                        Нет аккаунта? 
+                        Нет аккаунта?
                         <Link to="/register" style={linkStyle}> Зарегистрироваться</Link>
                     </div>
                 </div>
