@@ -1,6 +1,6 @@
 const pool = require('../db');
 const transporter = require('../mailer');
-const { acceptedTemplate, rejectedTemplate } = require('../emailTemplates');
+const { acceptedTemplate, rejectedTemplate, scheduleTemplate } = require('../emailTemplates');
 
 class AdminController {
 
@@ -75,36 +75,56 @@ class AdminController {
 
             // Получаем данные о докладе и email участника
             const submissionRes = await pool.query(
-                `SELECT s.title, u.email, u.first_name, u.last_name
+                `SELECT s.title, s.user_id, s.status as current_status, u.email, u.first_name, u.last_name
                  FROM submissions s
                  JOIN users u ON s.user_id = u.id
                  WHERE s.id = $1`,
                 [id]
             );
 
+            if (submissionRes.rows.length === 0) {
+                return res.status(404).json("Заявка не найдена");
+            }
+
+            const { email, first_name, last_name, title, user_id, current_status } = submissionRes.rows[0];
+
+            // Защита от повторных нажатий
+            if (current_status === status) {
+                return res.json("Статус уже установлен");
+            }
+
             await pool.query(
                 "UPDATE submissions SET status = $1 WHERE id = $2",
                 [status, id]
             );
 
-            // Отправляем email участнику
-            if (submissionRes.rows.length > 0) {
-                const { email, first_name, last_name, title } = submissionRes.rows[0];
+            // Отправляем email и создаём уведомление на сайте
+            const isAccepted = status === 'accepted';
+            const statusEmoji = isAccepted ? '✅' : '❌';
+            const statusText = isAccepted ? 'принят' : 'отклонён';
+            const htmlBody = isAccepted
+                ? acceptedTemplate({ first_name, last_name, title })
+                : rejectedTemplate({ first_name, last_name, title });
 
-                const isAccepted = status === 'accepted';
-                const statusEmoji = isAccepted ? '✅' : '❌';
-                const statusText = isAccepted ? 'принят' : 'отклонён';
-                const htmlBody = isAccepted
-                    ? acceptedTemplate({ first_name, last_name, title })
-                    : rejectedTemplate({ first_name, last_name, title });
+            // Уведомление на сайте
+            const notifMessage = isAccepted
+                ? `Ваш доклад «${title}» принят! Поздравляем!`
+                : `Ваш доклад «${title}» отклонён.`;
+            
+            await pool.query(
+                `INSERT INTO notifications (user_id, message, is_read, created_at) 
+                 VALUES ($1, $2, false, NOW())`,
+                [user_id, notifMessage]
+            );
 
-                await transporter.sendMail({
-                    from: process.env.EMAIL_USER,
-                    to: email,
-                    subject: `${statusEmoji} Ваш доклад ${statusText} — ${title}`,
-                    html: htmlBody
-                });
-            }
+            await transporter.sendMail({
+                from: process.env.EMAIL_USER,
+                to: email,
+                subject: `${statusEmoji} Ваш доклад ${statusText} — ${title}`,
+                html: htmlBody
+            });
+
+
 
             res.json("Статус обновлен");
         } catch (err) {
@@ -122,7 +142,7 @@ class AdminController {
 
             // Проверяем права, дату секции и что конференция активна
             const checkRes = await pool.query(`
-                SELECT s.id, sec.section_date 
+                SELECT s.id, s.start_time, s.duration, sec.section_date 
                 FROM submissions s
                 JOIN sections sec ON s.section_id = sec.id
                 JOIN conferences c ON sec.conference_id = c.id
@@ -136,6 +156,8 @@ class AdminController {
             }
 
             const { section_date } = checkRes.rows[0];
+            const oldStartTime = checkRes.rows[0].start_time;
+            const oldDuration = checkRes.rows[0].duration;
 
             if (!section_date) {
                 return res.status(400).json("Организатор еще не назначил дату для этой СЕКЦИИ");
@@ -148,10 +170,53 @@ class AdminController {
                 return res.status(400).json(`Ошибка: Доклад должен быть назначен на дату секции: ${assignedDate}`);
             }
 
+            // Защита от дубликатов — если время и длительность не изменились
+            const sameTime = oldStartTime && new Date(oldStartTime).getTime() === new Date(start_time).getTime();
+            const sameDuration = oldDuration && parseInt(oldDuration) === parseInt(duration);
+            if (sameTime && sameDuration) {
+                return res.json("Время уже установлено");
+            }
+
             await pool.query(
                 "UPDATE submissions SET start_time = $1, duration = $2 WHERE id = $3",
                 [start_time, duration, id]
             );
+
+            // Получаем данные участника для уведомления
+            const userRes = await pool.query(
+                `SELECT s.title, s.user_id, u.email, u.first_name, u.last_name
+                 FROM submissions s
+                 JOIN users u ON s.user_id = u.id
+                 WHERE s.id = $1`,
+                [id]
+            );
+
+            if (userRes.rows.length > 0) {
+                const { title, user_id, email, first_name, last_name } = userRes.rows[0];
+
+                const startDate = new Date(start_time);
+                const dateStr = startDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+                const timeStr = startDate.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+
+                // Уведомление на сайте
+                await pool.query(
+                    `INSERT INTO notifications (user_id, message, is_read, created_at) 
+                     VALUES ($1, $2, false, NOW())`,
+                    [user_id, `Назначено время выступления для доклада «${title}»: ${dateStr}, ${timeStr} (${duration} мин.)`]
+                );
+
+                // Письмо на почту (не блокируем ответ при ошибке)
+                try {
+                    await transporter.sendMail({
+                        from: process.env.EMAIL_USER,
+                        to: email,
+                        subject: `📅 Назначено время выступления — ${title}`,
+                        html: scheduleTemplate({ first_name, last_name, title, date: dateStr, time: timeStr, duration })
+                    });
+                } catch (emailErr) {
+                    console.error("Ошибка отправки письма:", emailErr.message);
+                }
+            }
 
             res.json("Время выступления обновлено");
         } catch (err) {

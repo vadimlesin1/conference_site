@@ -11,6 +11,7 @@ const submissionRouter = require('./routes/submissionRouter');
 const organizerRouter = require('./routes/organizerRouter');
 const publicRouter = require('./routes/publicRouter'); // <--- Проверь, что файл так и называется!
 const adminRouter = require('./routes/adminRouter');
+const notificationRouter = require('./routes/notificationRouter');
 
 // middleware
 app.use(cors());
@@ -26,6 +27,7 @@ app.use('/api/organizer', organizerRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/submissions', submissionRouter); 
 app.use('/api/public', publicRouter); // <--- Подключение расписания
+app.use('/api/notifications', notificationRouter);
 
 // server/index.js (примерно)
 const archiveController = require('./controllers/archiveController');

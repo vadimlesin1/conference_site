@@ -13,7 +13,7 @@ class SubmissionController {
 
             // 1. Ищем активную конференцию (Берем самую свежую по дате начала)
             const confRes = await pool.query(`
-                SELECT id, date_start 
+                SELECT id, date_start, date_end 
                 FROM conferences 
                 WHERE is_active = true 
                 ORDER BY date_start DESC 
@@ -26,20 +26,21 @@ class SubmissionController {
 
             const conference = confRes.rows[0];
 
-            // 2. ПРОВЕРКА ДАТЫ (Используем местное время, а не UTC)
+            // 2. ПРОВЕРКА ДАТЫ — заявки принимаются до date_end
             const now = new Date();
-            const conferenceDate = new Date(conference.date_start);
+            const conferenceEnd = new Date(conference.date_end);
 
             // Сбрасываем время в 00:00:00, чтобы сравнивать только дни
             now.setHours(0, 0, 0, 0);
-            conferenceDate.setHours(0, 0, 0, 0);
+            conferenceEnd.setHours(0, 0, 0, 0);
 
-            console.log(`Проверка: Сегодня ${now.toLocaleDateString()} > Начало ${conferenceDate.toLocaleDateString()}`);
+            console.log(`Проверка: Сегодня ${now.toLocaleDateString()} > Окончание ${conferenceEnd.toLocaleDateString()}`);
 
-            // Запрещаем только если "сегодня" строго позже "даты начала"
-            if (now.getTime() > conferenceDate.getTime()) {
+            // Запрещаем если сегодня строго позже даты окончания
+            if (now.getTime() > conferenceEnd.getTime()) {
                 return res.status(403).json("Прием заявок закрыт (дата конференции прошла).");
             }
+
 
             // 3. Ищем существующую заявку
             const existingSubRes = await pool.query(`
