@@ -169,7 +169,7 @@ const Dashboard = ({ setAuth }) => {
                     ) : roleId === 1 ? (
                         <AdminDashboard activeTab={activeTab} />
                     ) : (
-                        <ParticipantDashboard activeTab={activeTab} submissions={submissions} />
+                        <ParticipantDashboard activeTab={activeTab} submissions={submissions} name={name} refreshData={getProfile} />
                     )}
                 </div>
             </div>

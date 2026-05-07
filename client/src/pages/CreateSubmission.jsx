@@ -7,6 +7,10 @@ const CreateSubmission = () => {
     const [abstract, setAbstract] = useState(""); 
     const [sections, setSections] = useState([]); 
     const [selectedSection, setSelectedSection] = useState("");
+    const [advisorName, setAdvisorName] = useState("");
+    const [advisorEmail, setAdvisorEmail] = useState("");
+    const [advisorIsAuthor, setAdvisorIsAuthor] = useState(false);
+    const [coauthorsList, setCoauthorsList] = useState("");
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false); 
     const navigate = useNavigate();
@@ -37,6 +41,11 @@ const CreateSubmission = () => {
         formData.append("title", title);
         formData.append("abstract", abstract); 
         formData.append("section_id", selectedSection);
+        formData.append("advisor_name", advisorName);
+        formData.append("advisor_email", advisorEmail);
+        formData.append("advisor_is_author", advisorIsAuthor);
+        // Мы отправляем coauthorsList как JSON-строку для JSONB колонки
+        formData.append("coauthors_list", JSON.stringify(coauthorsList.split(',').map(s => s.trim()).filter(Boolean)));
         
         // Добавляем файл ТОЛЬКО если он выбран
         if (file) {
@@ -141,6 +150,45 @@ const CreateSubmission = () => {
                                 </option>
                             ))}
                         </select>
+
+                        <div style={{ borderTop: '1px solid #eee', paddingTop: '20px', marginTop: '10px' }}>
+                            <label style={labelStyle}>Научный руководитель (ФИО)</label>
+                            <input 
+                                type="text" 
+                                style={inputStyle}
+                                value={advisorName}
+                                onChange={e => setAdvisorName(e.target.value)}
+                                placeholder="Иванов И.И."
+                            />
+
+                            <label style={labelStyle}>Почта научного руководителя</label>
+                            <input 
+                                type="email" 
+                                style={inputStyle}
+                                value={advisorEmail}
+                                onChange={e => setAdvisorEmail(e.target.value)}
+                                placeholder="advisor@example.com"
+                            />
+
+                            <label style={{ display: 'flex', alignItems: 'center', marginBottom: '20px', fontSize: '14px', cursor: 'pointer' }}>
+                                <input 
+                                    type="checkbox" 
+                                    checked={advisorIsAuthor}
+                                    onChange={e => setAdvisorIsAuthor(e.target.checked)}
+                                    style={{ marginRight: '10px' }}
+                                />
+                                Является ли научный руководитель автором доклада?
+                            </label>
+
+                            <label style={labelStyle}>Соавторы (ФИО через запятую)</label>
+                            <input 
+                                type="text" 
+                                style={inputStyle}
+                                value={coauthorsList}
+                                onChange={e => setCoauthorsList(e.target.value)}
+                                placeholder="Петров П.П., Сидоров С.С."
+                            />
+                        </div>
 
                         <label style={labelStyle}>Файл доклада (PDF/Word)</label>
                         {/* Убрали required, чтобы можно было обновлять без перезаливки */}

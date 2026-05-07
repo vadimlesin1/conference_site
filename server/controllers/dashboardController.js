@@ -24,7 +24,9 @@ class DashboardController {
             // 2. ЗАПРОС ДОКЛАДОВ (ОБНОВЛЕННЫЙ)
             const submissions = await pool.query(
                 `SELECT s.id, s.title, s.status, s.created_at, 
-                        s.start_time, s.duration,   -- <--- ДОБАВЛЕНО ВРЕМЯ
+                        s.start_time, s.duration, s.file_url,
+                        s.advisor_name, s.advisor_email, s.advisor_is_author,
+                        s.payment_status, s.coauthors_list,
                         sec.title as section_name,
                         sec.room                    -- <--- ДОБАВЛЕНА АУДИТОРИЯ
                  FROM submissions s

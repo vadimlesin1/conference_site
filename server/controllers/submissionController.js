@@ -7,7 +7,7 @@ class SubmissionController {
     // Создать ИЛИ Обновить заявку
     async createOrUpdateSubmission(req, res) {
         try {
-            const { title, abstract, section_id } = req.body;
+            const { title, abstract, section_id, advisor_name, advisor_email, advisor_is_author, coauthors_list } = req.body;
             const file_url = req.file ? `/uploads/${req.file.filename}` : null;
             const user_id = req.user;
 
@@ -62,10 +62,11 @@ class SubmissionController {
 
                 const updatedSub = await pool.query(`
                     UPDATE submissions 
-                    SET title = $1, abstract = $2, section_id = $3, file_url = $4, status = 'pending', created_at = NOW()
+                    SET title = $1, abstract = $2, section_id = $3, file_url = $4, status = 'pending', created_at = NOW(),
+                        advisor_name = $6, advisor_email = $7, advisor_is_author = $8, coauthors_list = $9
                     WHERE id = $5
                     RETURNING *
-                `, [title, abstract, section_id, finalFileUrl, oldSub.id]);
+                `, [title, abstract, section_id, finalFileUrl, oldSub.id, advisor_name, advisor_email, advisor_is_author === 'true', coauthors_list]);
 
                 return res.json({ message: "Ваша заявка обновлена!", submission: updatedSub.rows[0] });
             }
@@ -76,9 +77,9 @@ class SubmissionController {
             }
 
             const newSubmission = await pool.query(
-                `INSERT INTO submissions (title, abstract, file_url, user_id, section_id, status, created_at) 
-                 VALUES ($1, $2, $3, $4, $5, 'pending', NOW()) RETURNING *`,
-                [title, abstract, file_url, user_id, section_id]
+                `INSERT INTO submissions (title, abstract, file_url, user_id, section_id, status, created_at, advisor_name, advisor_email, advisor_is_author, coauthors_list) 
+                 VALUES ($1, $2, $3, $4, $5, 'pending', NOW(), $6, $7, $8, $9) RETURNING *`,
+                [title, abstract, file_url, user_id, section_id, advisor_name, advisor_email, advisor_is_author === 'true', coauthors_list]
             );
 
             res.json({ message: "Заявка успешно создана!", submission: newSubmission.rows[0] });
@@ -112,6 +113,60 @@ class SubmissionController {
             );
             res.json(subs.rows);
         } catch (err) { res.status(500).send("Ошибка"); }
+    }
+
+    async updateSubmissionById(req, res) {
+        try {
+            const subId = req.params.id;
+            const userId = req.user;
+            const { title, abstract, section_id, advisor_name, advisor_email, advisor_is_author, coauthors_list } = req.body;
+            const file_url = req.file ? `/uploads/${req.file.filename}` : null;
+
+            // Check existing
+            const existing = await pool.query("SELECT * FROM submissions WHERE id = $1 AND user_id = $2", [subId, userId]);
+            if (existing.rows.length === 0) return res.status(404).json("Доклад не найден");
+            const oldSub = existing.rows[0];
+
+            if (oldSub.status === 'accepted' || oldSub.status === 'published') {
+                return res.status(403).json("В эту секцию ваш доклад уже принят или опубликован. Вы больше не можете его изменять.");
+            }
+
+            const finalFileUrl = file_url || oldSub.file_url;
+            
+            const updatedSub = await pool.query(`
+                UPDATE submissions 
+                SET title = $1, abstract = $2, section_id = $3, file_url = $4, status = 'pending', created_at = NOW(),
+                    advisor_name = $5, advisor_email = $6, advisor_is_author = $7, coauthors_list = $8
+                WHERE id = $9
+                RETURNING *
+            `, [title, abstract, section_id, finalFileUrl, advisor_name, advisor_email, advisor_is_author === 'true', coauthors_list, subId]);
+
+            res.json({ message: "Доклад обновлен!", submission: updatedSub.rows[0] });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Ошибка сервера");
+        }
+    }
+
+    async deleteSubmissionById(req, res) {
+        try {
+            const subId = req.params.id;
+            const userId = req.user;
+
+            const existing = await pool.query("SELECT * FROM submissions WHERE id = $1 AND user_id = $2", [subId, userId]);
+            if (existing.rows.length === 0) return res.status(404).json("Доклад не найден");
+            const oldSub = existing.rows[0];
+
+            if (oldSub.status === 'accepted' || oldSub.status === 'published') {
+                return res.status(403).json("Принятый или опубликованный доклад нельзя удалить.");
+            }
+
+            await pool.query("DELETE FROM submissions WHERE id = $1 AND user_id = $2", [subId, userId]);
+            res.json("Доклад удален!");
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Ошибка сервера");
+        }
     }
 }
 

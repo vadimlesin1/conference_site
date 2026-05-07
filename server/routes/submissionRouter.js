@@ -33,6 +33,12 @@ router.post('/', authorize, upload.single('file'), submissionController.createOr
 // Без этого маршрута вы не увидите свои заявки в личном кабинете
 router.get('/', authorize, submissionController.getUserSubmissions);
 
+// Редактирование конкретной заявки по ID
+router.put('/:id', authorize, upload.single('file'), submissionController.updateSubmissionById);
+
+// Удаление конкретной заявки по ID
+router.delete('/:id', authorize, submissionController.deleteSubmissionById);
+
 // Скачивание файла (Защищено токеном)
 router.get('/download/:filename', authorize, submissionController.downloadFile);
 
