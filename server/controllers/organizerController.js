@@ -1,4 +1,6 @@
 const pool = require('../db');
+const transporter = require('../mailer');
+const { publishedTemplate } = require('../emailTemplates');
 
 class OrganizerController {
 
@@ -184,10 +186,53 @@ class OrganizerController {
     async publishSubmission(req, res) {
         try {
             const { id } = req.params;
-            await pool.query(
-                "UPDATE submissions SET status = 'published' WHERE id = $1",
+
+            // Получаем данные о докладе и участнике (без статуса, статус проверим при апдейте)
+            const subRes = await pool.query(
+                `SELECT s.title, s.user_id, u.email, u.first_name, u.last_name 
+                 FROM submissions s
+                 JOIN users u ON s.user_id = u.id
+                 WHERE s.id = $1`,
                 [id]
             );
+
+            if (subRes.rows.length === 0) {
+                return res.status(404).json("Доклад не найден");
+            }
+
+            const { title, user_id, email, first_name, last_name } = subRes.rows[0];
+
+            // Атомарное обновление статуса: обновит только если статус ещё не 'published'
+            const updateRes = await pool.query(
+                "UPDATE submissions SET status = 'published' WHERE id = $1 AND status != 'published' RETURNING id",
+                [id]
+            );
+
+            // Если ни одна строка не обновилась — значит уже опубликовано
+            if (updateRes.rows.length === 0) {
+                return res.json("Доклад уже опубликован");
+            }
+
+            // Добавляем уведомление на сайт
+            const notifMessage = `Ваш доклад «${title}» опубликован! 🌟`;
+            await pool.query(
+                `INSERT INTO notifications (user_id, message, is_read, created_at) 
+                 VALUES ($1, $2, false, NOW())`,
+                [user_id, notifMessage]
+            );
+
+            // Отправляем письмо (не блокируем ответ при ошибке)
+            try {
+                await transporter.sendMail({
+                    from: process.env.EMAIL_USER,
+                    to: email,
+                    subject: `🌟 Ваш доклад опубликован — ${title}`,
+                    html: publishedTemplate({ first_name, last_name, title })
+                });
+            } catch (emailErr) {
+                console.error("Ошибка отправки письма о публикации:", emailErr.message);
+            }
+
             res.json("Доклад опубликован на сайте");
         } catch (err) {
             console.error(err.message);

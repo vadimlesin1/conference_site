@@ -394,7 +394,7 @@ const Navbar = () => {
                                                     >
                                                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                                                             <span style={{ fontSize: '20px', flexShrink: 0 }}>
-                                                                {notif.message.includes('принят') ? '✅' : notif.message.includes('Назначено') ? '📅' : '❌'}
+                                                                {notif.message.includes('принят') ? '✅' : notif.message.includes('Назначено') ? '📅' : notif.message.includes('опубликован') ? '🌟' : '❌'}
                                                             </span>
                                                             <div style={{ flex: 1 }}>
                                                                 <p style={{ 

@@ -321,4 +321,69 @@ const scheduleTemplate = ({ first_name, last_name, title, date, time, duration }
   return baseLayout(content);
 };
 
-module.exports = { acceptedTemplate, rejectedTemplate, scheduleTemplate };
+/**
+ * Письмо: доклад ОПУБЛИКОВАН
+ */
+const publishedTemplate = ({ first_name, last_name, title }) => {
+  const content = `
+    <!-- Иконка статуса -->
+    <div style="text-align:center; margin-bottom: 28px;">
+      <div style="
+        display:inline-flex; align-items:center; justify-content:center;
+        width:64px; height:64px; border-radius:50%;
+        background: #f3e5f5; font-size: 32px;
+        border: 3px solid #9c27b0;
+      ">🌟</div>
+    </div>
+
+    <h2 style="
+      margin: 0 0 8px;
+      text-align: center;
+      color: #6a1b9a;
+      font-size: 22px;
+      font-weight: 700;
+    ">Ваш доклад опубликован!</h2>
+
+    <p style="text-align:center; color:#666; font-size:14px; margin:0 0 28px;">
+      Материалы вашего выступления теперь доступны на сайте
+    </p>
+
+    <p style="color: #333; font-size: 15px; margin: 0 0 20px; line-height: 1.6;">
+      Уважаемый(ая) <strong>${first_name} ${last_name}</strong>,
+    </p>
+
+    <p style="color: #444; font-size: 15px; margin: 0 0 16px; line-height: 1.6;">
+      Организационный комитет успешно опубликовал ваш доклад:
+    </p>
+
+    <!-- Карточка с названием доклада -->
+    <div style="
+      background: #faf5fb;
+      border-left: 5px solid #9c27b0;
+      border-radius: 6px;
+      padding: 18px 22px;
+      margin: 0 0 24px;
+    ">
+      <p style="margin:0; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#ba68c8; font-weight:600;">
+        Доклад
+      </p>
+      <p style="margin: 6px 0 0; font-size: 16px; color: #4a148c; font-weight: 700; line-height: 1.5;">
+        ${title}
+      </p>
+    </div>
+
+    <p style="color: #444; font-size: 15px; margin: 0 0 12px; line-height: 1.6;">
+      Теперь ваш доклад доступен в публичной программе конференции.
+    </p>
+
+    <!-- Разделитель -->
+    <hr style="border:none; border-top: 1px solid #eef0f3; margin: 28px 0;" />
+
+    <p style="color: #888; font-size: 13px; margin: 0; line-height: 1.6;">
+      Если у вас возникли вопросы, свяжитесь с организационным комитетом.
+    </p>
+  `;
+  return baseLayout(content);
+};
+
+module.exports = { acceptedTemplate, rejectedTemplate, scheduleTemplate, publishedTemplate };
