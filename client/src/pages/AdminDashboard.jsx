@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
-const AdminDashboard = () => {
+const AdminDashboard = ({ activeTab }) => {
     // --- ДАННЫЕ ---
     const [sections, setSections] = useState([]);
     const [submissions, setSubmissions] = useState([]);
     const [loading, setLoading] = useState(true);
     
     // --- UI СОСТОЯНИЯ ---
-    const [activeTab, setActiveTab] = useState('applications'); 
     const [appFilterId, setAppFilterId] = useState('all'); 
     const [scheduleFilterId, setScheduleFilterId] = useState(''); 
 
@@ -114,14 +113,8 @@ const AdminDashboard = () => {
     const IconInfo = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#004085" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: 12, minWidth: '20px'}}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>;
 
     // --- СТИЛИ ---
-    const containerStyle = { background: '#fff', border: '1px solid #dee2e6', padding: '25px', borderRadius: '6px', maxWidth: '1200px', margin: '30px auto', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', fontFamily: 'Arial, sans-serif' };
+    const containerStyle = { fontFamily: 'Arial, sans-serif' };
     const headerRow = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #003366', paddingBottom: '15px', marginBottom: '20px' };
-    const tabsContainer = { display: 'flex', borderBottom: '1px solid #dee2e6', marginBottom: '20px' };
-    const tabStyle = (isActive) => ({
-        padding: '12px 25px', cursor: 'pointer', fontWeight: isActive ? '600' : '400',
-        color: isActive ? '#003366' : '#666', borderBottom: isActive ? '3px solid #003366' : 'none',
-        background: isActive ? '#f8f9fa' : 'transparent', borderTopLeftRadius: '4px', borderTopRightRadius: '4px', transition: 'all 0.2s'
-    });
     const infoBoxStyle = { marginBottom: '20px', display: 'flex', alignItems: 'center', background: '#e8f4fd', padding: '16px', borderRadius: '6px', border: '1px solid #b6d4fe' };
     const tableStyle = { width: '100%', borderCollapse: 'collapse', fontSize: '14px' };
     const thStyle = { background: '#f1f3f5', padding: '12px 15px', textAlign: 'left', borderBottom: '2px solid #dee2e6', color: '#495057', fontWeight: '600', textTransform: 'uppercase', fontSize: '12px', letterSpacing: '0.5px' };
@@ -134,9 +127,9 @@ const AdminDashboard = () => {
     });
     const badgeStyle = (type) => ({
         padding: '5px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', display: 'inline-block',
-        background: type === 'pending' ? '#fff3cd' : type === 'accepted' ? '#d1e7dd' : '#f8d7da',
-        color: type === 'pending' ? '#856404' : type === 'accepted' ? '#0f5132' : '#842029',
-        border: `1px solid ${type === 'pending' ? '#ffeeba' : type === 'accepted' ? '#badbcc' : '#f5c6cb'}`
+        background: type === 'pending' ? '#fff3cd' : type === 'accepted' ? '#d1e7dd' : type === 'published' ? '#e2e3e5' : '#f8d7da',
+        color: type === 'pending' ? '#856404' : type === 'accepted' ? '#0f5132' : type === 'published' ? '#383d41' : '#842029',
+        border: `1px solid ${type === 'pending' ? '#ffeeba' : type === 'accepted' ? '#badbcc' : type === 'published' ? '#d6d8db' : '#f5c6cb'}`
     });
     const inputStyle = { padding: '8px 10px', border: '1px solid #ced4da', borderRadius: '4px', fontSize: '14px', width: '100%', outline: 'none' };
 
@@ -155,15 +148,6 @@ const AdminDashboard = () => {
         <div style={containerStyle}>
             <div style={headerRow}>
                 <h3 style={{margin: 0, color: '#333', fontSize: '24px', fontWeight: '600'}}>Управление Секцией</h3>
-            </div>
-
-            <div style={tabsContainer}>
-                <div style={tabStyle(activeTab === 'applications')} onClick={() => setActiveTab('applications')}>
-                    Входящие заявки ({applicationsData.length})
-                </div>
-                <div style={tabStyle(activeTab === 'schedule')} onClick={() => setActiveTab('schedule')}>
-                    Расписание ({scheduleData.length})
-                </div>
             </div>
 
             {/* ВКЛАДКА ЗАЯВКИ */}
@@ -217,7 +201,7 @@ const AdminDashboard = () => {
                                         </td>
                                         <td style={tdStyle}>
                                             <span style={badgeStyle(sub.status)}>
-                                                {sub.status === 'pending' ? 'На проверке' : sub.status === 'accepted' ? 'Принят' : 'Отклонен'}
+                                                {sub.status === 'pending' ? 'На проверке' : sub.status === 'accepted' ? 'Принят' : sub.status === 'published' ? 'Опубликован' : 'Отклонен'}
                                             </span>
                                         </td>
                                         <td style={tdStyle}>

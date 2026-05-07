@@ -173,17 +173,14 @@ const Register = () => {
                         </div>
 
                         <div style={fullWidthStyle}>
-                            <label style={labelStyle}>Ваш статус:</label>
-                            <div style={{ marginTop: '5px' }}>
-                                <label style={radioLabelStyle}>
-                                    <input type="radio" name="academic_status" value="Студент" defaultChecked onChange={handleChange} /> Студент
-                                </label>
-                                <label style={radioLabelStyle}>
-                                    <input type="radio" name="academic_status" value="Аспирант" onChange={handleChange} /> Аспирант
-                                </label>
-                                <label style={radioLabelStyle}>
-                                    <input type="radio" name="academic_status" value="Преподаватель" onChange={handleChange} /> Преподаватель
-                                </label>
+                            <label style={labelStyle}>Ваша должность:</label>
+                            <div style={{ marginTop: '5px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Преподаватель" onChange={handleChange} /> Преподаватель</label>
+                                <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Научный сотрудник" onChange={handleChange} /> Научный сотрудник</label>
+                                <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Аспирант" onChange={handleChange} /> Аспирант</label>
+                                <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Магистр" onChange={handleChange} /> Магистр</label>
+                                <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Студент" defaultChecked onChange={handleChange} /> Студент</label>
+                                <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Другое" onChange={handleChange} /> Другое</label>
                             </div>
                         </div>
 

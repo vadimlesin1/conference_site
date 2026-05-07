@@ -29,4 +29,7 @@ router.get('/news', authorize, checkRole(2), organizerController.getOrganizerNew
 router.post('/news', authorize, checkRole(2), organizerController.createNews);
 router.delete('/news/:id', authorize, checkRole(2), organizerController.deleteNews);
 
+// --- СТАТИСТИКА ---
+router.get('/statistics', authorize, checkRole(2), organizerController.getStatistics);
+
 module.exports = router;

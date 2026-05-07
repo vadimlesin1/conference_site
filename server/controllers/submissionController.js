@@ -42,18 +42,22 @@ class SubmissionController {
             }
 
 
-            // 3. Ищем существующую заявку
+            // 3. Ищем существующую заявку в ЭТОЙ секции
             const existingSubRes = await pool.query(`
-                SELECT s.id, s.file_url 
+                SELECT s.id, s.file_url, s.status
                 FROM submissions s
-                JOIN sections sec ON s.section_id = sec.id
                 WHERE s.user_id = $1 
-                  AND sec.conference_id = $2
-            `, [user_id, conference.id]);
+                  AND s.section_id = $2
+            `, [user_id, section_id]);
 
             // СЦЕНАРИЙ А: ОБНОВЛЕНИЕ
             if (existingSubRes.rows.length > 0) {
                 const oldSub = existingSubRes.rows[0];
+
+                if (oldSub.status === 'accepted' || oldSub.status === 'published') {
+                    return res.status(403).json("В эту секцию ваш доклад уже принят или опубликован. Вы больше не можете его изменять.");
+                }
+
                 const finalFileUrl = file_url || oldSub.file_url;
 
                 const updatedSub = await pool.query(`

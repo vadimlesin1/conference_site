@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 
-const OrganizerDashboard = () => {
+const OrganizerDashboard = ({ activeTab }) => {
     // --- ДАННЫЕ ---
     const [sections, setSections] = useState([]);
     const [users, setUsers] = useState([]);
     const [schedule, setSchedule] = useState([]); 
     const [readyToPublish, setReadyToPublish] = useState([]); 
     const [newsList, setNewsList] = useState([]); 
+    const [statistics, setStatistics] = useState(null);
     
     // --- UI СОСТОЯНИЯ ---
-    const [activeTab, setActiveTab] = useState('sections'); 
     const [loading, setLoading] = useState(true);
 
     // --- ФОРМЫ ---
@@ -35,12 +35,13 @@ const OrganizerDashboard = () => {
     const loadData = async () => {
         try {
             const headers = { token: localStorage.token };
-            const [resSec, resUsers, resSched, resPublish, resNews] = await Promise.all([
+            const [resSec, resUsers, resSched, resPublish, resNews, resStats] = await Promise.all([
                 fetch("http://localhost:5000/api/organizer/sections", { headers }),
                 fetch("http://localhost:5000/api/organizer/users", { headers }),
                 fetch("http://localhost:5000/api/organizer/schedule", { headers }),
                 fetch("http://localhost:5000/api/organizer/publish-list", { headers }),
-                fetch("http://localhost:5000/api/organizer/news", { headers })
+                fetch("http://localhost:5000/api/organizer/news", { headers }),
+                fetch("http://localhost:5000/api/organizer/statistics", { headers })
             ]);
 
             if (resSec.ok) setSections(await resSec.json());
@@ -48,6 +49,7 @@ const OrganizerDashboard = () => {
             if (resSched.ok) setSchedule(await resSched.json());
             if (resPublish.ok) setReadyToPublish(await resPublish.json());
             if (resNews.ok) setNewsList(await resNews.json());
+            if (resStats.ok) setStatistics(await resStats.json());
 
             setSelectedManager(""); 
             setLoading(false);
@@ -177,16 +179,11 @@ const OrganizerDashboard = () => {
     const IconPlus = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight:6}}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
     const IconDownload = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight:6}}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>;
     const IconInfo = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#004085" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight: 12, minWidth: '20px'}}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>;
+    const IconPrinter = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight:6}}><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>;
 
     // --- СТИЛИ ---
-    const containerStyle = { background: '#fff', border: '1px solid #dee2e6', padding: '25px', borderRadius: '6px', maxWidth: '1200px', margin: '30px auto', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', fontFamily: 'Arial, sans-serif' };
+    const containerStyle = { fontFamily: 'Arial, sans-serif' };
     const headerRow = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #003366', paddingBottom: '15px', marginBottom: '20px' };
-    const tabsContainer = { display: 'flex', borderBottom: '1px solid #dee2e6', marginBottom: '20px' };
-    const tabStyle = (isActive) => ({
-        padding: '12px 25px', cursor: 'pointer', fontWeight: isActive ? '600' : '400',
-        color: isActive ? '#003366' : '#666', borderBottom: isActive ? '3px solid #003366' : 'none',
-        background: isActive ? '#f8f9fa' : 'transparent', borderTopLeftRadius: '4px', borderTopRightRadius: '4px', transition: 'all 0.2s'
-    });
     const infoBoxStyle = { marginBottom: '20px', display: 'flex', alignItems: 'center', background: '#e8f4fd', padding: '16px', borderRadius: '6px', border: '1px solid #b6d4fe' };
     const formBoxStyle = { background: '#f8f9fa', padding: '20px', border: '1px solid #dee2e6', marginBottom: '25px', borderRadius: '6px' };
     const tableStyle = { width: '100%', borderCollapse: 'collapse', fontSize: '14px' };
@@ -209,14 +206,6 @@ const OrganizerDashboard = () => {
                 <h2 style={{margin: 0, color: '#333', fontSize: '24px', fontWeight: '600'}}>Панель Организатора</h2>
             </div>
             
-            <div style={tabsContainer}>
-                <div style={tabStyle(activeTab === 'sections')} onClick={() => setActiveTab('sections')}>Секции</div>
-                <div style={tabStyle(activeTab === 'users')} onClick={() => setActiveTab('users')}>Пользователи</div>
-                <div style={tabStyle(activeTab === 'schedule')} onClick={() => setActiveTab('schedule')}>Расписание</div>
-                <div style={tabStyle(activeTab === 'publish')} onClick={() => setActiveTab('publish')}>Публикация</div>
-                <div style={tabStyle(activeTab === 'news')} onClick={() => setActiveTab('news')}>Новости</div>
-            </div>
-
             <div style={{ minHeight: '400px' }}>
                 
                 {/* 1. СЕКЦИИ */}
@@ -523,6 +512,152 @@ const OrganizerDashboard = () => {
                     </div>
                 )}
 
+                {/* 6. СТАТИСТИКА */}
+                {activeTab === 'statistics' && (
+                    <div className="print-area">
+                        <div style={{...infoBoxStyle, justifyContent: 'space-between'}} className="no-print">
+                            <div style={{display: 'flex', alignItems: 'center'}}>
+                                <IconInfo />
+                                <div style={{color: '#004085', fontSize: '14px', lineHeight: '1.4'}}>
+                                    <strong>Статистика.</strong> Обзор данных по активной конференции.
+                                </div>
+                            </div>
+                            <button className="no-print" style={btnAction('primary')} onClick={() => window.print()}>
+                                <IconPrinter /> Распечатать отчет
+                            </button>
+                        </div>
+
+                        {/* Заголовок для печати */}
+                        <div style={{ display: 'none', marginBottom: '20px', textAlign: 'center' }} className="print-only">
+                            <h2 style={{ fontSize: '24px', color: '#003366', margin: '0 0 10px 0' }}>Статистический отчет по конференции</h2>
+                            <p style={{ color: '#666', margin: 0 }}>Дата формирования: {new Date().toLocaleDateString('ru-RU')}</p>
+                        </div>
+
+                        {statistics ? (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+                                {/* Блок: Пользователи */}
+                                <div style={{ background: '#fff', border: '1px solid #dee2e6', borderRadius: '6px', padding: '20px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                                    <h4 style={{ margin: '0 0 15px 0', fontSize: '18px', color: '#003366', borderBottom: '2px solid #f1f3f5', paddingBottom: '10px' }}>Пользователи платформы</h4>
+                                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px' }}>
+                                        {statistics.users.map((u, i) => (
+                                            <li key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f8f9fa' }}>
+                                                <span style={{ color: '#555' }}>{u.role_id === 1 ? 'Администраторы' : u.role_id === 2 ? 'Организаторы' : 'Участники'}</span>
+                                                <strong style={{ color: '#333' }}>{u.count}</strong>
+                                            </li>
+                                        ))}
+                                        <li style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f8f9fa' }}>
+                                            <span style={{ color: '#003366', fontWeight: 'bold' }}>Всего:</span>
+                                            <strong style={{ color: '#003366', fontWeight: 'bold' }}>{statistics.users.reduce((acc, curr) => acc + parseInt(curr.count), 0)}</strong>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                {/* Блок: Статусы заявок и Acceptance Rate */}
+                                <div style={{ background: '#fff', border: '1px solid #dee2e6', borderRadius: '6px', padding: '20px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                                    <h4 style={{ margin: '0 0 15px 0', fontSize: '18px', color: '#003366', borderBottom: '2px solid #f1f3f5', paddingBottom: '10px' }}>Статусы докладов</h4>
+                                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px' }}>
+                                        {statistics.submissions.length === 0 ? <li style={{color: '#999', padding:'10px 0'}}>Нет поданных докладов</li> : null}
+                                        {statistics.submissions.map((s, i) => (
+                                            <li key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f8f9fa' }}>
+                                                <span style={{ color: '#555' }}>
+                                                    {s.status === 'accepted' ? 'Приняты ✅' : s.status === 'published' ? 'Опубликованы 🌟' : s.status === 'rejected' ? 'Отклонены ❌' : 'На проверке ⏳'}
+                                                </span>
+                                                <strong style={{ color: '#333' }}>{s.count}</strong>
+                                            </li>
+                                        ))}
+                                        <li style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f8f9fa' }}>
+                                            <span style={{ color: '#003366', fontWeight: 'bold' }}>Всего:</span>
+                                            <strong style={{ color: '#003366', fontWeight: 'bold' }}>{statistics.submissions.reduce((acc, curr) => acc + parseInt(curr.count), 0)}</strong>
+                                        </li>
+                                    </ul>
+                                    {/* ACCEPTANCE RATE */}
+                                    {statistics.submissions.length > 0 && (
+                                        <div style={{ marginTop: '20px', padding: '15px', background: '#e7f5ff', borderRadius: '6px', textAlign: 'center' }}>
+                                            <div style={{ fontSize: '13px', color: '#0056b3', textTransform: 'uppercase', fontWeight: '600' }}>Acceptance Rate</div>
+                                            <div style={{ fontSize: '28px', color: '#003366', fontWeight: 'bold', margin: '5px 0' }}>
+                                                {(() => {
+                                                    const total = statistics.submissions.reduce((acc, curr) => acc + parseInt(curr.count), 0);
+                                                    const accepted = statistics.submissions.filter(s => s.status === 'accepted' || s.status === 'published').reduce((acc, curr) => acc + parseInt(curr.count), 0);
+                                                    return total === 0 ? '0%' : Math.round((accepted / total) * 100) + '%';
+                                                })()}
+                                            </div>
+                                            <div style={{ fontSize: '12px', color: '#666' }}>доля принятых докладов</div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Блок: Распределение по секциям */}
+                                <div style={{ background: '#fff', border: '1px solid #dee2e6', borderRadius: '6px', padding: '20px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                                    <h4 style={{ margin: '0 0 15px 0', fontSize: '18px', color: '#003366', borderBottom: '2px solid #f1f3f5', paddingBottom: '10px' }}>Доклады по секциям</h4>
+                                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '15px' }}>
+                                        {statistics.sections.length === 0 ? <li style={{color: '#999', padding:'10px 0'}}>Нет активных секций</li> : null}
+                                        {statistics.sections.map((s, i) => (
+                                            <li key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f8f9fa' }}>
+                                                <span style={{ color: '#555', wordBreak: 'break-word', paddingRight: '15px' }}>{s.title}</span>
+                                                <strong style={{ color: '#333' }}>{s.count}</strong>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                {/* Блок: Нагрузка на администраторов */}
+                                <div style={{ background: '#fff', border: '1px solid #dee2e6', borderRadius: '6px', padding: '20px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                                    <h4 style={{ margin: '0 0 15px 0', fontSize: '18px', color: '#003366', borderBottom: '2px solid #f1f3f5', paddingBottom: '10px' }}>Нагрузка модераторов</h4>
+                                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '14px' }}>
+                                        {(!statistics.adminLoad || statistics.adminLoad.length === 0) ? <li style={{color: '#999', padding:'10px 0'}}>Администраторы не назначены</li> : null}
+                                        {statistics.adminLoad && statistics.adminLoad.map((al, i) => (
+                                            <li key={i} style={{ padding: '10px 0', borderBottom: '1px solid #f8f9fa' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                                    <span style={{ fontWeight: '600', color: '#333' }}>{al.admin_name}</span>
+                                                    <span style={{ color: '#555' }}>Всего: {al.total_submissions}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                                                    <span style={{ color: '#888' }}>{al.section_name}</span>
+                                                    <span style={{ color: parseInt(al.pending_submissions) > 0 ? '#dc3545' : '#28a745', fontWeight: '600' }}>
+                                                        Ожидают: {al.pending_submissions || 0}
+                                                    </span>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                {/* Блок: Динамика подачи заявок */}
+                                <div style={{ background: '#fff', border: '1px solid #dee2e6', borderRadius: '6px', padding: '20px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', gridColumn: '1 / -1' }}>
+                                    <h4 style={{ margin: '0 0 15px 0', fontSize: '18px', color: '#003366', borderBottom: '2px solid #f1f3f5', paddingBottom: '10px' }}>Динамика подачи заявок</h4>
+                                    
+                                    {(!statistics.timeline || statistics.timeline.length === 0) ? (
+                                        <div style={{color: '#999', padding:'10px 0'}}>Нет данных по датам</div>
+                                    ) : (
+                                        <div style={{ display: 'flex', alignItems: 'flex-end', height: '150px', gap: '8px', padding: '10px 0', overflowX: 'auto' }}>
+                                            {statistics.timeline.map((t, i) => {
+                                                const maxCount = Math.max(...statistics.timeline.map(x => parseInt(x.count)));
+                                                const heightPercent = maxCount === 0 ? 0 : (parseInt(t.count) / maxCount) * 100;
+                                                return (
+                                                    <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '40px', flex: 1 }}>
+                                                        <div style={{ fontSize: '11px', color: '#666', marginBottom: '5px' }}>{t.count}</div>
+                                                        <div style={{ 
+                                                            width: '100%', 
+                                                            height: `${Math.max(10, heightPercent)}%`, 
+                                                            background: 'linear-gradient(180deg, #4dabf7 0%, #228be6 100%)', 
+                                                            borderRadius: '4px 4px 0 0',
+                                                            transition: 'height 0.3s ease'
+                                                        }}></div>
+                                                        <div style={{ fontSize: '10px', color: '#888', marginTop: '5px', transform: 'rotate(-45deg)', transformOrigin: 'top left', whiteSpace: 'nowrap', marginTop: '10px' }}>
+                                                            {new Date(t.date).toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit'})}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ) : (
+                            <div style={{ textAlign: 'center', color: '#666', padding: '40px' }}>Загрузка статистики...</div>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

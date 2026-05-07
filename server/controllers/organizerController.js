@@ -279,6 +279,94 @@ class OrganizerController {
             res.status(500).send("Ошибка сервера");
         }
     }
+
+    // --- СТАТИСТИКА ---
+    async getStatistics(req, res) {
+        try {
+            // 1. Статистика по пользователям
+            const usersStat = await pool.query(`
+                SELECT role_id, COUNT(id) as count 
+                FROM users 
+                GROUP BY role_id
+            `);
+
+            // 2. Статистика по заявкам (активная конференция)
+            const submissionsStat = await pool.query(`
+                SELECT s.status, COUNT(s.id) as count
+                FROM submissions s
+                JOIN sections sec ON s.section_id = sec.id
+                JOIN conferences c ON sec.conference_id = c.id
+                WHERE c.is_active = true
+                GROUP BY s.status
+            `);
+
+            // 3. Заявки по секциям
+            const sectionStat = await pool.query(`
+                SELECT sec.title, COUNT(s.id) as count
+                FROM sections sec
+                JOIN conferences c ON sec.conference_id = c.id
+                LEFT JOIN submissions s ON s.section_id = sec.id
+                WHERE c.is_active = true
+                GROUP BY sec.title
+            `);
+
+            // 4. Динамика подачи заявок (по дням)
+            const timelineStatRes = await pool.query(`
+                SELECT TO_CHAR(s.created_at, 'YYYY-MM-DD') as date, COUNT(s.id) as count
+                FROM submissions s
+                JOIN sections sec ON s.section_id = sec.id
+                JOIN conferences c ON sec.conference_id = c.id
+                WHERE c.is_active = true AND s.created_at IS NOT NULL
+                GROUP BY TO_CHAR(s.created_at, 'YYYY-MM-DD')
+                ORDER BY TO_CHAR(s.created_at, 'YYYY-MM-DD') ASC
+            `);
+
+            let timelineData = timelineStatRes.rows;
+            // Заполняем пропущенные дни от первой даты до сегодня
+            if (timelineData.length > 0) {
+                const firstDate = new Date(timelineData[0].date);
+                const today = new Date();
+                const filledTimeline = [];
+                let currentDate = new Date(firstDate);
+                
+                while (currentDate <= today) {
+                    const dateStr = currentDate.toISOString().split('T')[0];
+                    const existing = timelineData.find(d => d.date === dateStr);
+                    filledTimeline.push({
+                        date: dateStr,
+                        count: existing ? existing.count : "0"
+                    });
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+                timelineData = filledTimeline;
+            }
+
+            // 5. Нагрузка на модераторов (по секциям)
+            const adminLoadStat = await pool.query(`
+                SELECT u.first_name || ' ' || u.last_name as admin_name, 
+                       sec.title as section_name,
+                       COUNT(s.id) as total_submissions,
+                       SUM(CASE WHEN s.status = 'pending' THEN 1 ELSE 0 END) as pending_submissions
+                FROM sections sec
+                JOIN conferences c ON sec.conference_id = c.id
+                JOIN users u ON sec.manager_id = u.id
+                LEFT JOIN submissions s ON s.section_id = sec.id
+                WHERE c.is_active = true
+                GROUP BY u.id, sec.id
+            `);
+            
+            res.json({
+                users: usersStat.rows,
+                submissions: submissionsStat.rows,
+                sections: sectionStat.rows,
+                timeline: timelineData,
+                adminLoad: adminLoadStat.rows
+            });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Ошибка сервера");
+        }
+    }
 }
 
 module.exports = new OrganizerController();
