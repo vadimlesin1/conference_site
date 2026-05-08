@@ -146,8 +146,8 @@ const AdminDashboard = ({ activeTab }) => {
 
     return (
         <div style={containerStyle}>
-            <div style={headerRow}>
-                <h3 style={{margin: 0, color: '#333', fontSize: '24px', fontWeight: '600'}}>Управление Секцией</h3>
+            <div className="dashboard-header-row" style={headerRow}>
+                <h3 style={{margin: 0, color: '#333', fontSize: '24px', fontWeight: '600'}}>Панель Администратора</h3>
             </div>
 
             {/* ВКЛАДКА ЗАЯВКИ */}
@@ -173,6 +173,7 @@ const AdminDashboard = ({ activeTab }) => {
                             Заявок не найдено.
                         </div>
                     ) : (
+                        <div className="table-responsive-wrapper">
                         <table style={tableStyle}>
                             <thead>
                                 <tr>
@@ -218,6 +219,7 @@ const AdminDashboard = ({ activeTab }) => {
                                 ))}
                             </tbody>
                         </table>
+                        </div>
                     )}
                 </div>
             )}
@@ -244,6 +246,7 @@ const AdminDashboard = ({ activeTab }) => {
                             Нет принятых докладов в этой секции.
                         </div>
                     ) : (
+                        <div className="table-responsive-wrapper">
                         <table style={tableStyle}>
                             <thead>
                                 <tr>
@@ -325,6 +328,7 @@ const AdminDashboard = ({ activeTab }) => {
                                 })}
                             </tbody>
                         </table>
+                        </div>
                     )}
                 </div>
             )}

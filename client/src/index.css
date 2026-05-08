@@ -32,3 +32,69 @@ code {
     display: block !important;
   }
 }
+
+/* --- МОБИЛЬНАЯ АДАПТАЦИЯ --- */
+@media (max-width: 768px) {
+  /* Общие контейнеры */
+  .responsive-flex-col {
+    flex-direction: column !important;
+  }
+  
+  .responsive-padding {
+    padding: 15px !important;
+  }
+
+  /* Сайдбар дашборда */
+  .dashboard-layout {
+    flex-direction: column !important;
+  }
+  .dashboard-sidebar {
+    width: 100% !important;
+    min-height: auto !important;
+    border-right: none !important;
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  /* Таблицы (чтобы можно было скроллить горизонтально) */
+  .table-responsive-wrapper {
+    overflow-x: auto;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Сетка карточек и форм */
+  .responsive-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Модальные окна */
+  .responsive-modal {
+    width: 95% !important;
+    padding: 20px !important;
+  }
+  
+  /* Навигация */
+  .navbar-container {
+    flex-direction: column !important;
+    gap: 10px;
+    padding: 15px !important;
+  }
+  
+  /* Хедер страниц дашборда */
+  .dashboard-header-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 15px;
+  }
+  
+  .nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+}
+
+.table-responsive-wrapper {
+  width: 100%;
+}

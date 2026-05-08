@@ -131,8 +131,8 @@ const ParticipantDashboard = ({ activeTab, submissions, name, refreshData }) => 
 
     return (
         <div style={containerStyle}>
-            <div style={headerRow}>
-                <h3 style={{margin: 0, color: '#333', fontSize: '24px', fontWeight: '600'}}>Мои заявки на доклады</h3>
+            <div className="dashboard-header-row" style={headerRow}>
+                <h3 style={{margin: 0, color: '#333', fontSize: '24px', fontWeight: '600'}}>Панель Участника</h3>
                 <Link to="/create-submission" style={btnPrimary}>
                     <IconPlus /> Подать новую заявку
                 </Link>
@@ -145,8 +145,9 @@ const ParticipantDashboard = ({ activeTab, submissions, name, refreshData }) => 
                             У вас пока нет активных заявок.
                         </div>
                     ) : (
-                        <table style={tableStyle}>
-                            <thead>
+                        <div className="table-responsive-wrapper">
+                            <table style={tableStyle}>
+                                <thead>
                                 <tr>
                                     <th style={thStyle}>№</th>
                                     <th style={thStyle}>ФИО, соавторы</th>
@@ -228,14 +229,15 @@ const ParticipantDashboard = ({ activeTab, submissions, name, refreshData }) => 
                                 )})}
                             </tbody>
                         </table>
+                        </div>
                     )}
                 </>
             )}
 
             {/* МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ */}
             {editingSub && (
-                <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                    <div style={{ background: '#fff', padding: '30px', borderRadius: '8px', width: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
+                <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '15px', boxSizing: 'border-box' }}>
+                    <div className="responsive-modal" style={{ background: '#fff', padding: '30px', borderRadius: '8px', width: '500px', maxWidth: '100%', maxHeight: '90vh', overflowY: 'auto', boxSizing: 'border-box' }}>
                         <h3 style={{ margin: '0 0 20px 0', fontSize: '20px', color: '#333' }}>Редактирование доклада</h3>
                         <form onSubmit={handleUpdate}>
                             <div style={{ marginBottom: '15px' }}>

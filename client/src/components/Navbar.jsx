@@ -121,7 +121,7 @@ const Navbar = () => {
         background: '#003366', // Темно-синий
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
         padding: '0 40px',
-        height: '64px',
+        minHeight: '64px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -313,7 +313,7 @@ const Navbar = () => {
     };
 
     return (
-        <nav style={navStyle}>
+        <nav className="navbar-container" style={navStyle}>
             {/* Логотип */}
             <Link to="/" style={logoStyle}>
                 <div style={logoIcon}>IT</div>

@@ -202,8 +202,8 @@ const OrganizerDashboard = ({ activeTab }) => {
 
     return (
         <div style={containerStyle}>
-            <div style={headerRow}>
-                <h2 style={{margin: 0, color: '#333', fontSize: '24px', fontWeight: '600'}}>Панель Организатора</h2>
+            <div className="dashboard-header-row" style={headerRow}>
+                <h3 style={{margin: 0, color: '#333', fontSize: '24px', fontWeight: '600'}}>Панель Организатора</h3>
             </div>
             
             <div style={{ minHeight: '400px' }}>
@@ -233,6 +233,7 @@ const OrganizerDashboard = ({ activeTab }) => {
                             </form>
                         </div>
 
+                        <div className="table-responsive-wrapper">
                         <table style={tableStyle}>
                             <thead>
                                 <tr>
@@ -277,12 +278,14 @@ const OrganizerDashboard = ({ activeTab }) => {
                                 ))}
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 )}
 
                 {/* 2. ПОЛЬЗОВАТЕЛИ */}
                 {activeTab === 'users' && (
                     <div>
+                        <div className="table-responsive-wrapper">
                         <table style={tableStyle}>
                             <thead>
                                 <tr>
@@ -325,6 +328,7 @@ const OrganizerDashboard = ({ activeTab }) => {
                                 ))}
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 )}
 
@@ -345,6 +349,7 @@ const OrganizerDashboard = ({ activeTab }) => {
                 Секций пока нет. Создайте их на первой вкладке.
             </div>
         ) : (
+            <div className="table-responsive-wrapper">
             <table style={tableStyle}>
                 <thead>
                     <tr>
@@ -393,6 +398,7 @@ const OrganizerDashboard = ({ activeTab }) => {
                     ))}
                 </tbody>
             </table>
+            </div>
         )}
     </div>
 )}
@@ -423,6 +429,7 @@ const OrganizerDashboard = ({ activeTab }) => {
                                 {readyToPublish.length === 0 ? "Нет докладов для публикации." : "Нет докладов в выбранной секции."}
                             </div>
                         ) : (
+                            <div className="table-responsive-wrapper">
                             <table style={tableStyle}>
                                 <thead>
                                     <tr>
@@ -459,6 +466,7 @@ const OrganizerDashboard = ({ activeTab }) => {
                                     ))}
                                 </tbody>
                             </table>
+                            </div>
                         )}
                     </div>
                 )}
@@ -485,6 +493,7 @@ const OrganizerDashboard = ({ activeTab }) => {
                         {newsList.length === 0 ? (
                             <div style={{padding:'40px', textAlign:'center', color:'#adb5bd', border: '2px dashed #dee2e6', borderRadius: '6px'}}>Новостей пока нет.</div>
                         ) : (
+                            <div className="table-responsive-wrapper">
                             <table style={tableStyle}>
                                 <thead>
                                     <tr>
@@ -508,6 +517,7 @@ const OrganizerDashboard = ({ activeTab }) => {
                                     ))}
                                 </tbody>
                             </table>
+                            </div>
                         )}
                     </div>
                 )}

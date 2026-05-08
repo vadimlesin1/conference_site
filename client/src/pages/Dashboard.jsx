@@ -114,10 +114,10 @@ const Dashboard = ({ setAuth }) => {
         <div style={{ background: '#f8f9fa', minHeight: '100vh' }}>
             <Navbar />
             
-            <div style={{ display: 'flex', maxWidth: '1400px', margin: '0 auto', background: '#fff', minHeight: 'calc(100vh - 64px)', boxShadow: '0 0 10px rgba(0,0,0,0.05)' }}>
+            <div className="dashboard-layout" style={{ display: 'flex', maxWidth: '1400px', margin: '0 auto', background: '#fff', minHeight: 'calc(100vh - 64px)', boxShadow: '0 0 10px rgba(0,0,0,0.05)' }}>
                 
                 {/* ЛЕВЫЙ САЙДБАР */}
-                <div style={sidebarStyle}>
+                <div className="dashboard-sidebar" style={sidebarStyle}>
                     <div style={profileBoxStyle}>
                         <h2 style={nameStyle}>{name}</h2>
                         <div style={roleStyle}>{roleName}</div>
