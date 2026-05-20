@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { LanguageProvider } from './context/LanguageContext';
 
 // Импорт страниц
 import Register from './pages/Register';
@@ -33,6 +34,7 @@ function App() {
   };
 
   return (
+    <LanguageProvider>
     <Router>
       <div className="container">
         <Routes> 
@@ -81,6 +83,7 @@ function App() {
         </Routes>
       </div>
     </Router>
+    </LanguageProvider>
   );
 }
 

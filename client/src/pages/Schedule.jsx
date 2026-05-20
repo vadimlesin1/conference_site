@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { useLanguage } from '../context/LanguageContext';
 
 const Schedule = () => {
+    const { t, language } = useLanguage();
     const [schedule, setSchedule] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedSection, setSelectedSection] = useState("all");
@@ -43,7 +45,7 @@ const Schedule = () => {
 
     const formatDate = (dateString) => {
         const options = { day: 'numeric', month: 'long', weekday: 'long' };
-        const dateStr = new Date(dateString).toLocaleDateString('ru-RU', options);
+        const dateStr = new Date(dateString).toLocaleDateString(language === 'ru' ? 'ru-RU' : 'en-US', options);
         return dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
     };
 
@@ -162,7 +164,7 @@ const Schedule = () => {
         border: '1px solid #dee2e6', borderRadius: '6px', color: '#6c757d'
     };
 
-    if (loading) return <div style={{textAlign:'center', marginTop:'50px', color: '#666'}}>Загрузка расписания...</div>;
+    if (loading) return <div style={{textAlign:'center', marginTop:'50px', color: '#666'}}>{t('common.loading')}</div>;
 
     return (
         <div style={{ background: '#fdfdfd', minHeight: '100vh', paddingBottom: '50px' }}>
@@ -172,19 +174,19 @@ const Schedule = () => {
                 {/* ХЕДЕР СТРАНИЦЫ */}
                 <div style={headerBlockStyle}>
                     <h1 style={pageTitleStyle}>
-                        <IconCalendar /> Программа конференции
+                        <IconCalendar /> {language === 'ru' ? 'Программа конференции' : 'Conference Program'}
                     </h1>
                     
                     <div style={filterBoxStyle}>
                         <span style={{ fontSize: '13px', color: '#555', marginRight: '10px', fontWeight: '600', display: 'flex', alignItems: 'center' }}>
-                            <IconFilter /> Секция:
+                            <IconFilter /> {language === 'ru' ? 'Секция:' : 'Section:'}
                         </span>
                         <select 
                             style={selectStyle}
                             value={selectedSection}
                             onChange={(e) => setSelectedSection(e.target.value)}
                         >
-                            <option value="all">Все направления</option>
+                            <option value="all">{language === 'ru' ? 'Все направления' : 'All sections'}</option>
                             {uniqueSections.filter(s => s !== 'all').map(sec => (
                                 <option key={sec} value={sec}>{sec}</option>
                             ))}
@@ -196,8 +198,8 @@ const Schedule = () => {
                 {filteredSchedule.length === 0 ? (
                     <div style={emptyStateStyle}>
                         {schedule.length === 0 
-                            ? "Расписание формируется. Следите за обновлениями." 
-                            : "В выбранной секции нет запланированных выступлений."}
+                            ? (language === 'ru' ? "Расписание формируется. Следите за обновлениями." : "Schedule is being formed. Stay tuned.") 
+                            : (language === 'ru' ? "В выбранной секции нет запланированных выступлений." : "No scheduled presentations in the selected section.")}
                     </div>
                 ) : (
                     <div>
@@ -221,7 +223,7 @@ const Schedule = () => {
                                                 {formatTimeRange(item.start_time, item.duration)}
                                             </div>
                                             <div style={durationStyle}>
-                                                {item.duration} мин
+                                                {item.duration} {language === 'ru' ? 'мин' : 'min'}
                                             </div>
                                         </div>
 
@@ -231,7 +233,7 @@ const Schedule = () => {
                                                 <span style={sectionBadgeStyle}>{item.section_name}</span>
                                                 {item.room && (
                                                     <span style={roomBadgeStyle}>
-                                                        <IconMapPin /> Ауд. {item.room}
+                                                        <IconMapPin /> {language === 'ru' ? 'Ауд.' : 'Room'} {item.room}
                                                     </span>
                                                 )}
                                             </div>

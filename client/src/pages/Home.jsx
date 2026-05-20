@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useLanguage } from '../context/LanguageContext';
 
 const Home = () => {
+    const { t, language } = useLanguage();
     const [sections, setSections] = useState([]);
     const [statsData, setStatsData] = useState(null);
     const [news, setNews] = useState([]); 
@@ -44,7 +46,7 @@ const Home = () => {
     // Форматирование даты
     const formatDate = (dateStr) => {
         if (!dateStr) return "";
-        return new Date(dateStr).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+        return new Date(dateStr).toLocaleDateString(language === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' });
     };
 
     // --- СТИЛИ ---
@@ -93,7 +95,7 @@ const Home = () => {
             {/* БАННЕР */}
             <div style={styles.hero}>
                 {loading ? (
-                    <h1 style={{ fontSize: '2.5rem', margin: '0 0 15px 0' }}>Загрузка...</h1>
+                    <h1 style={{ fontSize: '2.5rem', margin: '0 0 15px 0' }}>{t('common.loading')}</h1>
                 ) : statsData && statsData.info ? (
                     <>
                         <h1 style={{ fontSize: '2.5rem', margin: '0 0 15px 0', fontWeight: '700' }}>
@@ -106,16 +108,16 @@ const Home = () => {
                 ) : (
                     <>
                         <h1 style={{ fontSize: '2.5rem', margin: '0 0 15px 0', fontWeight: '700' }}>
-                            Научная конференция
+                            {t('home.title')}
                         </h1>
                         <p style={{ fontSize: '1.1rem', margin: '0 0 25px 0', opacity: 0.9 }}>
-                            Нет активной конференции в данный момент.
+                            {t('home.noActiveConference')}
                         </p>
                     </>
                 )}
 
                 <Link to="/register" style={styles.heroBtn}>
-                    Подать заявку на участие
+                    {t('home.participate')}
                 </Link>
             </div>
 
@@ -138,11 +140,11 @@ const Home = () => {
                     <div style={{flex: 1, display: 'flex', justifyContent: 'space-around', alignItems: 'center', minWidth: '280px', marginTop: '10px'}}>
                         <div style={styles.statBox}>
                             <span style={styles.statNumber}>{statsData.stats ? statsData.stats.submissions : 0}</span>
-                            <span style={styles.statLabel}>Докладов</span>
+                            <span style={styles.statLabel}>{language === 'ru' ? 'Докладов' : 'Papers'}</span>
                         </div>
                         <div style={styles.statBox}>
                             <span style={styles.statNumber}>{statsData.stats ? statsData.stats.participants : 0}</span>
-                            <span style={styles.statLabel}>Участников</span>
+                            <span style={styles.statLabel}>{language === 'ru' ? 'Участников' : 'Participants'}</span>
                         </div>
                     </div>
                 </div>
@@ -151,14 +153,14 @@ const Home = () => {
             {/* СЕКЦИИ */}
             <div style={styles.gridContainer}>
                 <h2 style={{ textAlign: 'center', color: '#333', fontSize: '24px', marginBottom: '30px' }}>
-                    Направления работы
+                    {t('home.sections')}
                 </h2>
 
                 {loading ? (
-                    <p style={{ textAlign: 'center', color: '#666' }}>Загрузка...</p>
+                    <p style={{ textAlign: 'center', color: '#666' }}>{t('common.loading')}</p>
                 ) : sections.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '40px', background: '#fff', borderRadius: '8px', color: '#666', border: '1px solid #e0e0e0' }}>
-                        Список секций формируется организационным комитетом.
+                        {t('home.noSections')}
                     </div>
                 ) : (
                     <div style={styles.grid}>
@@ -176,19 +178,19 @@ const Home = () => {
                                         {/* 1. Руководитель */}
                                         <div style={styles.metaInfo}>
                                             <IconUser />
-                                            {sec.manager_name ? sec.manager_name : 'Руководитель не назначен'}
+                                            {sec.manager_name ? sec.manager_name : (language === 'ru' ? 'Руководитель не назначен' : 'Manager not assigned')}
                                         </div>
 
                                         {/* 2. Аудитория (если есть) */}
                                         <div style={styles.metaInfo}>
                                             <IconDoor />
-                                            {sec.room ? `Аудитория ${sec.room}` : 'Аудитория уточняется'}
+                                            {sec.room ? (language === 'ru' ? `Аудитория ${sec.room}` : `Room ${sec.room}`) : (language === 'ru' ? 'Аудитория уточняется' : 'Room TBD')}
                                         </div>
 
                                         {/* 3. Дата (если есть) */}
                                         <div style={styles.metaInfo}>
                                             <IconCalendar />
-                                            {sec.section_date ? formatDate(sec.section_date) : 'Дата не назначена'}
+                                            {sec.section_date ? formatDate(sec.section_date) : (language === 'ru' ? 'Дата не назначена' : 'Date TBD')}
                                         </div>
                                     </div>
                                 </div>
@@ -199,7 +201,7 @@ const Home = () => {
                                         onMouseEnter={(e) => e.currentTarget.style.background = '#e9ecef'}
                                         onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                     >
-                                        Открыть расписание <IconArrow />
+                                        {language === 'ru' ? 'Открыть расписание' : 'View Schedule'} <IconArrow />
                                     </Link>
                                 </div>
                             </div>
@@ -212,7 +214,7 @@ const Home = () => {
             {news.length > 0 && (
                 <div style={{ maxWidth: '1000px', margin: '40px auto 80px', padding: '0 20px' }}>
                     <h2 style={{ textAlign: 'center', color: '#333', fontSize: '24px', marginBottom: '30px', borderTop: '1px solid #eee', paddingTop: '40px' }}>
-                        Последние новости
+                        {language === 'ru' ? 'Последние новости' : 'Latest News'}
                     </h2>
                     
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -263,7 +265,7 @@ const Home = () => {
                             onMouseEnter={e => { e.target.style.background = '#0056b3'; e.target.style.color = 'white'; }}
                             onMouseLeave={e => { e.target.style.background = 'transparent'; e.target.style.color = '#0056b3'; }}
                             >
-                                Читать все новости →
+                                {language === 'ru' ? 'Читать все новости →' : 'Read all news →'}
                             </Link>
                         </div>
                     )}

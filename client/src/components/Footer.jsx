@@ -1,6 +1,9 @@
 import React from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 const Footer = () => {
+    const { language } = useLanguage();
+    
     return (
         <footer style={{ 
             background: '#343a40', 
@@ -11,7 +14,9 @@ const Footer = () => {
             marginTop: 'auto' // Чтобы футер прижимался к низу, если контента мало
         }}>
             <p style={{ margin: 0 }}>
-                © 2025 Саратовский государственный технический университет имени Гагарина Ю.А.
+                {language === 'ru' 
+                    ? '© 2025 Саратовский государственный технический университет имени Гагарина Ю.А.'
+                    : '© 2025 Saratov State Technical University named after Gagarin Yu.A.'}
             </p>
         </footer>
     );

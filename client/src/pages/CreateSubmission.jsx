@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 
 const CreateSubmission = () => {
+    const { language } = useLanguage();
     const [title, setTitle] = useState("");
     const [abstract, setAbstract] = useState(""); 
     const [sections, setSections] = useState([]); 
@@ -63,18 +65,18 @@ const CreateSubmission = () => {
 
             if (response.ok) {
                 // Если успешно (200 OK)
-                alert(parseRes.message || "Успешно отправлено!"); 
+                alert(parseRes.message || (language === 'ru' ? "Успешно отправлено!" : "Successfully submitted!")); 
                 navigate("/dashboard");
             } else {
                 // Если ошибка (400, 403, 500) - показываем текст ошибки от сервера
                 // parseRes может быть строкой или объектом { message: "..." }
-                const errorMsg = typeof parseRes === 'string' ? parseRes : (parseRes.message || "Ошибка отправки");
+                const errorMsg = typeof parseRes === 'string' ? parseRes : (parseRes.message || (language === 'ru' ? "Ошибка отправки" : "Submission error"));
                 alert(errorMsg);
                 setLoading(false);
             }
         } catch (err) {
             console.error(err);
-            alert("Ошибка сети. Проверьте подключение к серверу.");
+            alert(language === 'ru' ? "Ошибка сети. Проверьте подключение к серверу." : "Network error. Check server connection.");
             setLoading(false);
         }
     };
@@ -109,12 +111,12 @@ const CreateSubmission = () => {
             <div style={containerStyle}>
                 <div style={cardStyle}>
                     <div style={headerStyle}>
-                        <h1 style={h1Style}>Подача доклада</h1>
-                        <p style={pStyle}>Заполните форму для участия в конференции.</p>
+                        <h1 style={h1Style}>{language === 'ru' ? 'Подача доклада' : 'Submit a Paper'}</h1>
+                        <p style={pStyle}>{language === 'ru' ? 'Заполните форму для участия в конференции.' : 'Fill in the form to participate in the conference.'}</p>
                     </div>
                     
                     <form onSubmit={onSubmitForm}>
-                        <label style={labelStyle}>Название доклада *</label>
+                        <label style={labelStyle}>{language === 'ru' ? 'Название доклада' : 'Paper Title'} *</label>
                         <input 
                             type="text" 
                             style={inputStyle}
@@ -126,7 +128,7 @@ const CreateSubmission = () => {
                             onBlur={(e) => e.target.style.borderColor = '#ced4da'}
                         />
 
-                        <label style={labelStyle}>Аннотация (Abstract)</label>
+                        <label style={labelStyle}>{language === 'ru' ? 'Аннотация (Abstract)' : 'Abstract'}</label>
                         <textarea 
                             style={textareaStyle}
                             value={abstract}
@@ -136,7 +138,7 @@ const CreateSubmission = () => {
                             onBlur={(e) => e.target.style.borderColor = '#ced4da'}
                         />
 
-                        <label style={labelStyle}>Выберите секцию *</label>
+                        <label style={labelStyle}>{language === 'ru' ? 'Выберите секцию' : 'Select Section'} *</label>
                         <select 
                             style={inputStyle}
                             value={selectedSection}
@@ -152,7 +154,7 @@ const CreateSubmission = () => {
                         </select>
 
                         <div style={{ borderTop: '1px solid #eee', paddingTop: '20px', marginTop: '10px' }}>
-                            <label style={labelStyle}>Научный руководитель (ФИО)</label>
+                            <label style={labelStyle}>{language === 'ru' ? 'Научный руководитель (ФИО)' : 'Advisor (Full Name)'}</label>
                             <input 
                                 type="text" 
                                 style={inputStyle}
@@ -161,7 +163,7 @@ const CreateSubmission = () => {
                                 placeholder="Иванов И.И."
                             />
 
-                            <label style={labelStyle}>Почта научного руководителя</label>
+                            <label style={labelStyle}>{language === 'ru' ? 'Почта научного руководителя' : 'Advisor Email'}</label>
                             <input 
                                 type="email" 
                                 style={inputStyle}
@@ -177,10 +179,10 @@ const CreateSubmission = () => {
                                     onChange={e => setAdvisorIsAuthor(e.target.checked)}
                                     style={{ marginRight: '10px' }}
                                 />
-                                Является ли научный руководитель автором доклада?
+                                {language === 'ru' ? 'Является ли научный руководитель автором доклада?' : 'Is the advisor a co-author?'}
                             </label>
 
-                            <label style={labelStyle}>Соавторы (ФИО через запятую)</label>
+                            <label style={labelStyle}>{language === 'ru' ? 'Соавторы (ФИО через запятую)' : 'Co-authors (comma separated)'}</label>
                             <input 
                                 type="text" 
                                 style={inputStyle}
@@ -190,7 +192,7 @@ const CreateSubmission = () => {
                             />
                         </div>
 
-                        <label style={labelStyle}>Файл доклада (PDF/Word)</label>
+                        <label style={labelStyle}>{language === 'ru' ? 'Файл доклада (PDF/Word)' : 'Paper File (PDF/Word)'}</label>
                         {/* Убрали required, чтобы можно было обновлять без перезаливки */}
                         <input 
                             type="file" 
@@ -199,11 +201,11 @@ const CreateSubmission = () => {
                             accept=".pdf,.doc,.docx"
                         />
                         <div style={{fontSize: '12px', color: '#888', marginTop: '-15px', marginBottom: '25px'}}>
-                            При обновлении заявки загружать файл не обязательно (останется старый).
+                            {language === 'ru' ? 'При обновлении заявки загружать файл не обязательно (останется старый).' : 'When updating, uploading a new file is optional (the old one will remain).'}
                         </div>
 
                         <button type="submit" style={btnStyle} disabled={loading}>
-                            {loading ? "Отправка..." : "Отправить / Обновить"}
+                            {loading ? (language === 'ru' ? "Отправка..." : "Submitting...") : (language === 'ru' ? "Отправить / Обновить" : "Submit / Update")}
                         </button>
                     </form>
                 </div>

@@ -161,7 +161,7 @@ class OrganizerController {
     async getReadyToPublish(req, res) {
         try {
             const result = await pool.query(`
-                SELECT s.id, s.title, s.status, s.file_url,
+                SELECT s.id, s.title, s.status, s.file_url, s.payment_status,
                        (u.first_name || ' ' || u.last_name) as author_name,
                        sec.title as section_name
                 FROM submissions s
@@ -214,7 +214,7 @@ class OrganizerController {
             }
 
             // Добавляем уведомление на сайт
-            const notifMessage = `Ваш доклад «${title}» опубликован! 🌟`;
+            const notifMessage = `Ваш доклад «${title}» опубликован!`;
             await pool.query(
                 `INSERT INTO notifications (user_id, message, is_read, created_at) 
                  VALUES ($1, $2, false, NOW())`,

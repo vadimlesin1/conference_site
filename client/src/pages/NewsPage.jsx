@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useLanguage } from '../context/LanguageContext';
 
 const NewsPage = () => {
+    const { t, language } = useLanguage();
     const [news, setNews] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -23,7 +25,7 @@ const NewsPage = () => {
     // Форматирование даты
     const formatDate = (dateStr) => {
         if (!dateStr) return "";
-        return new Date(dateStr).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+        return new Date(dateStr).toLocaleDateString(language === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' });
     };
 
     // --- ИКОНКИ (Lucide Style) ---
@@ -85,14 +87,14 @@ const NewsPage = () => {
             
             <div style={contentWrapperStyle}>
                 <h1 style={headerStyle}>
-                    <IconNewspaper /> Новости конференции
+                    <IconNewspaper /> {language === 'ru' ? 'Новости конференции' : 'Conference News'}
                 </h1>
 
                 {loading ? (
-                    <div style={{ textAlign: 'center', color: '#666', marginTop: '40px' }}>Загрузка ленты новостей...</div>
+                    <div style={{ textAlign: 'center', color: '#666', marginTop: '40px' }}>{t('common.loading')}</div>
                 ) : news.length === 0 ? (
                     <div style={emptyStateStyle}>
-                        Новостей пока нет. Следите за обновлениями.
+                        {language === 'ru' ? 'Новостей пока нет. Следите за обновлениями.' : 'No news yet. Stay tuned.'}
                     </div>
                 ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>

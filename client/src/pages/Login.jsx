@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { loginUser } from '../api/auth';
+import { useLanguage } from '../context/LanguageContext';
 
 const Login = () => {
+    const { t } = useLanguage();
     const [inputs, setInputs] = useState({
         email: '',
         password: ''
@@ -35,11 +37,11 @@ const Login = () => {
                 if (parseRes === "Подтвердите email перед входом") {
                     window.location.href = "/pending-verification";
                 } else {
-                    setError(parseRes || 'Не удалось войти в систему');
+                    setError(parseRes || t('common.error'));
                 }
             }
         } catch (err) {
-            setError('Ошибка сети. Проверьте подключение.');
+            setError(t('common.networkError'));
         } finally {
             setIsLoading(false);
         }
@@ -171,8 +173,8 @@ const Login = () => {
             <div style={containerStyle}>
                 <div style={cardStyle}>
                     <div style={headerStyle}>
-                        <h2 style={titleStyle}>Вход в систему</h2>
-                        <p style={subtitleStyle}>Используйте аккаунт участника конференции</p>
+                        <h2 style={titleStyle}>{t('auth.loginTitle')}</h2>
+                        <p style={subtitleStyle}>{t('auth.loginSubtitle') || (t('auth.loginTitle'))}</p>
                     </div>
 
                     {/* Уведомление об ошибке (БЕЗ ИКОНКИ) */}
@@ -184,7 +186,7 @@ const Login = () => {
 
                     <form onSubmit={onSubmitForm}>
                         <div style={formGroupStyle}>
-                            <label style={labelStyle}>Электронная почта</label>
+                            <label style={labelStyle}>{t('auth.email')}</label>
                             <input
                                 type="email"
                                 name="email"
@@ -202,7 +204,7 @@ const Login = () => {
                         </div>
 
                         <div style={formGroupStyle}>
-                            <label style={labelStyle}>Пароль</label>
+                            <label style={labelStyle}>{t('auth.password')}</label>
                             <input
                                 type="password"
                                 name="password"
@@ -224,13 +226,13 @@ const Login = () => {
                             disabled={isLoading}
                             style={btnStyle}
                         >
-                            {isLoading ? 'Вход...' : 'Войти'}
+                            {isLoading ? t('common.loading') : t('auth.loginBtn')}
                         </button>
                     </form>
 
                     <div style={footerStyle}>
-                        Нет аккаунта?
-                        <Link to="/register" style={linkStyle}> Зарегистрироваться</Link>
+                        {t('auth.noAccount')}
+                        <Link to="/register" style={linkStyle}> {t('auth.registerBtn')}</Link>
                     </div>
                 </div>
             </div>

@@ -4,9 +4,12 @@ import OrganizerDashboard from './OrganizerDashboard';
 import AdminDashboard from './AdminDashboard'; 
 import ParticipantDashboard from './ParticipantDashboard';
 import Navbar from '../components/Navbar'; 
+import Footer from '../components/Footer';
 import ProfileEditing from '../components/ProfileEditing';
+import { useLanguage } from '../context/LanguageContext';
 
 const Dashboard = ({ setAuth }) => {
+    const { t, language } = useLanguage();
     const [name, setName] = useState("");
     const [roleId, setRoleId] = useState(null); 
     const [submissions, setSubmissions] = useState([]);
@@ -105,10 +108,10 @@ const Dashboard = ({ setAuth }) => {
         alignItems: 'center'
     });
 
-    if (loading) return <div style={{textAlign:'center', marginTop:'50px', color: '#666'}}>Загрузка данных...</div>;
+    if (loading) return <div style={{textAlign:'center', marginTop:'50px', color: '#666'}}>{t('common.loading')}</div>;
 
     // Определяем Роль строкой
-    const roleName = roleId === 2 ? 'Организатор' : roleId === 1 ? 'Администратор' : 'Участник';
+    const roleName = roleId === 2 ? (language === 'ru' ? 'Организатор' : 'Organizer') : roleId === 1 ? (language === 'ru' ? 'Администратор' : 'Admin') : (language === 'ru' ? 'Участник' : 'Participant');
 
     return (
         <div style={{ background: '#f8f9fa', minHeight: '100vh' }}>
@@ -125,33 +128,33 @@ const Dashboard = ({ setAuth }) => {
                     
                     <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                         <div style={{ borderBottom: '1px solid #f1f3f5' }}>
-                            <div style={tabItemStyle(activeTab === 'profile')} onClick={() => setActiveTab('profile')}>Редактировать профиль</div>
+                            <div style={tabItemStyle(activeTab === 'profile')} onClick={() => setActiveTab('profile')}>{t('dashboard.profile')}</div>
                         </div>
 
                         {/* ВКЛАДКИ ОРГАНИЗАТОРА */}
                         {roleId === 2 && (
                             <>
-                                <div style={tabItemStyle(activeTab === 'sections')} onClick={() => setActiveTab('sections')}>Секции</div>
-                                <div style={tabItemStyle(activeTab === 'users')} onClick={() => setActiveTab('users')}>Пользователи</div>
-                                <div style={tabItemStyle(activeTab === 'schedule')} onClick={() => setActiveTab('schedule')}>Расписание</div>
-                                <div style={tabItemStyle(activeTab === 'publish')} onClick={() => setActiveTab('publish')}>Публикация</div>
-                                <div style={tabItemStyle(activeTab === 'news')} onClick={() => setActiveTab('news')}>Новости</div>
-                                <div style={tabItemStyle(activeTab === 'statistics')} onClick={() => setActiveTab('statistics')}>Статистика</div>
+                                <div style={tabItemStyle(activeTab === 'sections')} onClick={() => setActiveTab('sections')}>{t('dashboard.sections')}</div>
+                                <div style={tabItemStyle(activeTab === 'users')} onClick={() => setActiveTab('users')}>{t('dashboard.users')}</div>
+                                <div style={tabItemStyle(activeTab === 'schedule')} onClick={() => setActiveTab('schedule')}>{t('dashboard.schedule')}</div>
+                                <div style={tabItemStyle(activeTab === 'publish')} onClick={() => setActiveTab('publish')}>{t('dashboard.publish')}</div>
+                                <div style={tabItemStyle(activeTab === 'news')} onClick={() => setActiveTab('news')}>{t('dashboard.news')}</div>
+                                <div style={tabItemStyle(activeTab === 'statistics')} onClick={() => setActiveTab('statistics')}>{t('dashboard.statistics')}</div>
                             </>
                         )}
                         
                         {/* ВКЛАДКИ АДМИНИСТРАТОРА */}
                         {roleId === 1 && (
                             <>
-                                <div style={tabItemStyle(activeTab === 'applications')} onClick={() => setActiveTab('applications')}>Входящие заявки</div>
-                                <div style={tabItemStyle(activeTab === 'schedule')} onClick={() => setActiveTab('schedule')}>Расписание секции</div>
+                                <div style={tabItemStyle(activeTab === 'applications')} onClick={() => setActiveTab('applications')}>{t('dashboard.submissions')}</div>
+                                <div style={tabItemStyle(activeTab === 'schedule')} onClick={() => setActiveTab('schedule')}>{t('dashboard.schedule')}</div>
                             </>
                         )}
                         
                         {/* ВКЛАДКИ УЧАСТНИКА */}
                         {roleId === 3 && (
                             <>
-                                <div style={tabItemStyle(activeTab === 'my_submissions')} onClick={() => setActiveTab('my_submissions')}>Мои доклады</div>
+                                <div style={tabItemStyle(activeTab === 'my_submissions')} onClick={() => setActiveTab('my_submissions')}>{t('dashboard.mySubmissions')}</div>
                             </>
                         )}
 
@@ -173,6 +176,7 @@ const Dashboard = ({ setAuth }) => {
                     )}
                 </div>
             </div>
+            <Footer />
         </div>
     );
 };

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import { registerUser } from '../api/auth';
+import { useLanguage } from '../context/LanguageContext';
 
 const Register = () => {
+    const { t, language } = useLanguage();
     const [formData, setFormData] = useState({
         last_name: '',
         first_name: '',
@@ -28,7 +30,7 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (formData.password !== formData.password_repeat) {
-            alert("Пароли не совпадают!");
+            alert(language === 'ru' ? "Пароли не совпадают!" : "Passwords don't match!");
             return;
         }
 
@@ -40,11 +42,11 @@ const Register = () => {
             if (response.ok) {
                 window.location.href = "/pending-verification"; 
             } else {
-                alert("Ошибка: " + parseRes);
+                alert((language === 'ru' ? "Ошибка: " : "Error: ") + parseRes);
             }
         } catch (err) {
             console.error(err.message);
-            alert("Ошибка соединения с сервером");
+            alert(t('common.networkError'));
         } finally {
             setIsLoading(false);
         }
@@ -121,30 +123,30 @@ const Register = () => {
             <div style={containerStyle}>
                 <div style={cardStyle}>
                     <div style={headerStyle}>
-                        <h1 style={titleStyle}>Регистрация участника</h1>
-                        <p style={subtitleStyle}>⚠ Достаточно регистрации только одного из авторов доклада!</p>
+                        <h1 style={titleStyle}>{t('auth.registerTitle')}</h1>
+                        <p style={subtitleStyle}>{language === 'ru' ? '⚠ Достаточно регистрации только одного из авторов доклада!' : '⚠ Only one author needs to register!'}</p>
                     </div>
 
                     <form onSubmit={handleSubmit} style={gridStyle}>
                         
                         {/* ЛИЧНЫЕ ДАННЫЕ */}
-                        <div style={sectionTitleStyle}>1. Личные данные</div>
+                        <div style={sectionTitleStyle}>{language === 'ru' ? '1. Личные данные' : '1. Personal Information'}</div>
 
                         <div>
-                            <label style={labelStyle}>Фамилия *</label>
+                            <label style={labelStyle}>{t('auth.lastName')} *</label>
                             <input style={inputStyle} type="text" name="last_name" onChange={handleChange} required />
                         </div>
                         <div>
-                            <label style={labelStyle}>Имя *</label>
+                            <label style={labelStyle}>{t('auth.firstName')} *</label>
                             <input style={inputStyle} type="text" name="first_name" onChange={handleChange} required />
                         </div>
                         <div style={fullWidthStyle}>
-                            <label style={labelStyle}>Отчество</label>
+                            <label style={labelStyle}>{t('auth.middleName')}</label>
                             <input style={inputStyle} type="text" name="middle_name" onChange={handleChange} />
                         </div>
 
                         <div>
-                            <label style={labelStyle}>Страна</label>
+                            <label style={labelStyle}>{t('profile.country')}</label>
                             <select style={inputStyle} name="country" onChange={handleChange} value={formData.country}>
                                 <option value="Россия">Россия</option>
                                 <option value="Беларусь">Беларусь</option>
@@ -152,61 +154,61 @@ const Register = () => {
                             </select>
                         </div>
                         <div>
-                            <label style={labelStyle}>Город</label>
+                            <label style={labelStyle}>{t('profile.city')}</label>
                             <input style={inputStyle} type="text" name="city" onChange={handleChange} value={formData.city} />
                         </div>
 
                         {/* УЧЕБА / РАБОТА */}
-                        <div style={sectionTitleStyle}>2. Место учебы / работы</div>
+                        <div style={sectionTitleStyle}>{language === 'ru' ? '2. Место учебы / работы' : '2. Education / Work'}</div>
 
                         <div style={fullWidthStyle}>
-                            <label style={labelStyle}>Учебное заведение (организация)</label>
+                            <label style={labelStyle}>{t('profile.institution')}</label>
                             <input style={inputStyle} type="text" name="institution" onChange={handleChange} value={formData.institution} />
                         </div>
                         <div style={fullWidthStyle}>
-                            <label style={labelStyle}>Институт / Факультет</label>
+                            <label style={labelStyle}>{language === 'ru' ? 'Институт / Факультет' : 'Institute / Faculty'}</label>
                             <input style={inputStyle} type="text" name="faculty" placeholder="Напр. ИнПИТ" onChange={handleChange} />
                         </div>
                         <div style={fullWidthStyle}>
-                            <label style={labelStyle}>Направление (специальность)</label>
+                            <label style={labelStyle}>{language === 'ru' ? 'Направление (специальность)' : 'Study Direction (Specialty)'}</label>
                             <input style={inputStyle} type="text" name="study_direction" onChange={handleChange} />
                         </div>
 
                         <div style={fullWidthStyle}>
-                            <label style={labelStyle}>Ваша должность:</label>
+                            <label style={labelStyle}>{language === 'ru' ? 'Ваша должность:' : 'Your position:'}</label>
                             <div style={{ marginTop: '5px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Преподаватель" onChange={handleChange} /> Преподаватель</label>
-                                <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Научный сотрудник" onChange={handleChange} /> Научный сотрудник</label>
-                                <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Аспирант" onChange={handleChange} /> Аспирант</label>
-                                <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Магистр" onChange={handleChange} /> Магистр</label>
-                                <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Студент" defaultChecked onChange={handleChange} /> Студент</label>
-                                <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Другое" onChange={handleChange} /> Другое</label>
+                                <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Преподаватель" onChange={handleChange} /> {language === 'ru' ? 'Преподаватель' : 'Lecturer'}</label>
+                                <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Научный сотрудник" onChange={handleChange} /> {language === 'ru' ? 'Научный сотрудник' : 'Researcher'}</label>
+                                <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Аспирант" onChange={handleChange} /> {language === 'ru' ? 'Аспирант' : 'PhD Student'}</label>
+                                <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Магистр" onChange={handleChange} /> {language === 'ru' ? 'Магистр' : 'Master Student'}</label>
+                                <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Студент" defaultChecked onChange={handleChange} /> {language === 'ru' ? 'Студент' : 'Student'}</label>
+                                <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Другое" onChange={handleChange} /> {language === 'ru' ? 'Другое' : 'Other'}</label>
                             </div>
                         </div>
 
                         {/* КОНТАКТЫ */}
-                        <div style={sectionTitleStyle}>3. Данные для входа</div>
+                        <div style={sectionTitleStyle}>{language === 'ru' ? '3. Данные для входа' : '3. Login Details'}</div>
 
                         <div>
-                            <label style={labelStyle}>Телефон</label>
+                            <label style={labelStyle}>{language === 'ru' ? 'Телефон' : 'Phone'}</label>
                             <input style={inputStyle} type="text" name="phone_number" placeholder="+7..." onChange={handleChange} />
                         </div>
                         <div>
-                            <label style={labelStyle}>E-mail (Логин) *</label>
+                            <label style={labelStyle}>{t('auth.email')} ({language === 'ru' ? 'Логин' : 'Login'}) *</label>
                             <input style={inputStyle} type="email" name="email" onChange={handleChange} required />
                         </div>
                         <div>
-                            <label style={labelStyle}>Пароль *</label>
+                            <label style={labelStyle}>{t('auth.password')} *</label>
                             <input style={inputStyle} type="password" name="password" onChange={handleChange} required />
                         </div>
                         <div>
-                            <label style={labelStyle}>Повторите пароль *</label>
+                            <label style={labelStyle}>{language === 'ru' ? 'Повторите пароль' : 'Repeat Password'} *</label>
                             <input style={inputStyle} type="password" name="password_repeat" onChange={handleChange} required />
                         </div>
 
                         <div style={fullWidthStyle}>
                             <button type="submit" disabled={isLoading} style={{...btnStyle, opacity: isLoading ? 0.7 : 1, cursor: isLoading ? 'not-allowed' : 'pointer'}}>
-                                {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
+                                {isLoading ? t('common.loading') : t('auth.registerBtn')}
                             </button>
                         </div>
                     </form>

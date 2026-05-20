@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { useLanguage } from '../context/LanguageContext';
 
 const PendingVerification = () => {
+    const { language } = useLanguage();
     // --- СТИЛИ ---
     const pageStyle = {
         minHeight: '100vh',
@@ -71,12 +73,13 @@ const PendingVerification = () => {
             <div style={containerStyle}>
                 <div style={cardStyle}>
                     <div style={iconStyle}>✉️</div>
-                    <h2 style={titleStyle}>Остался один шаг!</h2>
+                    <h2 style={titleStyle}>{language === 'ru' ? 'Остался один шаг!' : 'One more step!'}</h2>
                     <p style={textStyle}>
-                        Мы отправили письмо с ссылкой для подтверждения на вашу почту.
-                        Пожалуйста, проверьте почтовый ящик (и папку «Спам») и перейдите по ссылке, чтобы завершить регистрацию.
+                        {language === 'ru'
+                            ? 'Мы отправили письмо с ссылкой для подтверждения на вашу почту. Пожалуйста, проверьте почтовый ящик (и папку «Спам») и перейдите по ссылке, чтобы завершить регистрацию.'
+                            : 'We sent a confirmation link to your email. Please check your inbox (and Spam folder) and follow the link to complete registration.'}
                     </p>
-                    <Link to="/login" style={btnStyle}>Перейти ко входу</Link>
+                    <Link to="/login" style={btnStyle}>{language === 'ru' ? 'Перейти ко входу' : 'Go to Login'}</Link>
                 </div>
             </div>
         </div>

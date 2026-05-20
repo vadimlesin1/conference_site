@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 
 const ProfileEditing = () => {
+    const { t, language } = useLanguage();
     const [formData, setFormData] = useState({
         last_name: '',
         first_name: '',
@@ -56,15 +58,15 @@ const ProfileEditing = () => {
                 body: JSON.stringify(formData)
             });
             if (res.ok) {
-                alert("Профиль успешно обновлен!");
+                alert(language === 'ru' ? "Профиль успешно обновлен!" : "Profile updated successfully!");
                 // Optionally reload to update sidebar name
                 window.location.reload();
             } else {
-                alert("Ошибка при обновлении профиля");
+                alert(language === 'ru' ? "Ошибка при обновлении профиля" : "Error updating profile");
             }
         } catch (err) {
             console.error(err);
-            alert("Ошибка сети");
+            alert(t('common.networkError'));
         } finally {
             setSaving(false);
         }
@@ -79,50 +81,50 @@ const ProfileEditing = () => {
     const radioLabelStyle = { display: 'flex', alignItems: 'center', marginBottom: '10px', fontSize: '14px', color: '#333', cursor: 'pointer' };
     const btnStyle = { background: '#0056b3', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '4px', fontSize: '14px', fontWeight: '500', cursor: 'pointer', marginTop: '10px', transition: 'background 0.2s' };
 
-    if (loading) return <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>Загрузка профиля...</div>;
+    if (loading) return <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>{t('common.loading')}</div>;
 
     return (
         <div style={containerStyle}>
             <div className="dashboard-header-row" style={headerRow}>
-                <h3 style={{ margin: 0, color: '#333', fontSize: '24px', fontWeight: '600' }}>Редактирование профиля</h3>
+                <h3 style={{ margin: 0, color: '#333', fontSize: '24px', fontWeight: '600' }}>{t('profile.title')}</h3>
             </div>
 
             <div style={formBoxStyle}>
                 <form onSubmit={handleSubmit}>
-                    <label style={labelStyle}>Фамилия:</label>
+                    <label style={labelStyle}>{t('profile.lastName')}:</label>
                     <input style={inputStyle} type="text" name="last_name" value={formData.last_name} onChange={handleChange} required />
 
-                    <label style={labelStyle}>Имя:</label>
+                    <label style={labelStyle}>{t('profile.firstName')}:</label>
                     <input style={inputStyle} type="text" name="first_name" value={formData.first_name} onChange={handleChange} required />
 
-                    <label style={labelStyle}>Отчество:</label>
+                    <label style={labelStyle}>{t('profile.middleName')}:</label>
                     <input style={inputStyle} type="text" name="middle_name" value={formData.middle_name} onChange={handleChange} />
 
-                    <label style={labelStyle}>Страна:</label>
+                    <label style={labelStyle}>{t('profile.country')}:</label>
                     <select style={inputStyle} name="country" value={formData.country} onChange={handleChange}>
                         <option value="Россия">Россия</option>
                         <option value="Беларусь">Беларусь</option>
                         <option value="Казахстан">Казахстан</option>
                     </select>
 
-                    <label style={labelStyle}>Город:</label>
+                    <label style={labelStyle}>{t('profile.city')}:</label>
                     <input style={inputStyle} type="text" name="city" value={formData.city} onChange={handleChange} />
 
-                    <label style={labelStyle}>Учебное заведение (организация):</label>
+                    <label style={labelStyle}>{t('profile.institution')}:</label>
                     <input style={inputStyle} type="text" name="institution" value={formData.institution} onChange={handleChange} />
 
-                    <label style={labelStyle}>Ваша должность:</label>
+                    <label style={labelStyle}>{language === 'ru' ? 'Ваша должность:' : 'Your position:'}</label>
                     <div style={{ marginBottom: '25px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                        <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Преподаватель" checked={formData.academic_status === 'Преподаватель'} onChange={handleChange} style={{ marginRight: '8px' }} /> Преподаватель</label>
-                        <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Научный сотрудник" checked={formData.academic_status === 'Научный сотрудник'} onChange={handleChange} style={{ marginRight: '8px' }} /> Научный сотрудник</label>
-                        <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Аспирант" checked={formData.academic_status === 'Аспирант'} onChange={handleChange} style={{ marginRight: '8px' }} /> Аспирант</label>
-                        <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Магистр" checked={formData.academic_status === 'Магистр'} onChange={handleChange} style={{ marginRight: '8px' }} /> Магистр</label>
-                        <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Студент" checked={formData.academic_status === 'Студент'} onChange={handleChange} style={{ marginRight: '8px' }} /> Студент</label>
-                        <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Другое" checked={formData.academic_status === 'Другое'} onChange={handleChange} style={{ marginRight: '8px' }} /> Другое</label>
+                        <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Преподаватель" checked={formData.academic_status === 'Преподаватель'} onChange={handleChange} style={{ marginRight: '8px' }} /> {language === 'ru' ? 'Преподаватель' : 'Lecturer'}</label>
+                        <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Научный сотрудник" checked={formData.academic_status === 'Научный сотрудник'} onChange={handleChange} style={{ marginRight: '8px' }} /> {language === 'ru' ? 'Научный сотрудник' : 'Researcher'}</label>
+                        <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Аспирант" checked={formData.academic_status === 'Аспирант'} onChange={handleChange} style={{ marginRight: '8px' }} /> {language === 'ru' ? 'Аспирант' : 'PhD Student'}</label>
+                        <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Магистр" checked={formData.academic_status === 'Магистр'} onChange={handleChange} style={{ marginRight: '8px' }} /> {language === 'ru' ? 'Магистр' : 'Master Student'}</label>
+                        <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Студент" checked={formData.academic_status === 'Студент'} onChange={handleChange} style={{ marginRight: '8px' }} /> {language === 'ru' ? 'Студент' : 'Student'}</label>
+                        <label style={radioLabelStyle}><input type="radio" name="academic_status" value="Другое" checked={formData.academic_status === 'Другое'} onChange={handleChange} style={{ marginRight: '8px' }} /> {language === 'ru' ? 'Другое' : 'Other'}</label>
                     </div>
 
                     <button type="submit" style={{ ...btnStyle, opacity: saving ? 0.7 : 1 }} disabled={saving}>
-                        {saving ? 'Сохранение...' : 'Сохранить изменения'}
+                        {saving ? t('profile.saving') : t('profile.save')}
                     </button>
                 </form>
             </div>

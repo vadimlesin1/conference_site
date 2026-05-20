@@ -42,5 +42,8 @@ router.delete('/:id', authorize, submissionController.deleteSubmissionById);
 // Скачивание файла (Защищено токеном)
 router.get('/download/:filename', authorize, submissionController.downloadFile);
 
+// Обновление статуса оплаты
+router.put('/:id/payment', authorize, submissionController.updatePaymentStatus);
+
 
 module.exports = router;

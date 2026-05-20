@@ -210,7 +210,7 @@ class AdminController {
                     await transporter.sendMail({
                         from: process.env.EMAIL_USER,
                         to: email,
-                        subject: `📅 Назначено время выступления — ${title}`,
+                        subject: `Назначено время выступления — ${title}`,
                         html: scheduleTemplate({ first_name, last_name, title, date: dateStr, time: timeStr, duration })
                     });
                 } catch (emailErr) {

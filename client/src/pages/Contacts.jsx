@@ -1,8 +1,10 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useLanguage } from '../context/LanguageContext';
 
 const Contacts = () => {
+    const { language } = useLanguage();
     // --- SVG ИКОНКИ ---
     const IconMapPin = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0056b3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>;
     const IconPhone = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0056b3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>;
@@ -109,8 +111,8 @@ const Contacts = () => {
             <Navbar />
             
             <div style={styles.header}>
-                <h1 style={styles.title}>Свяжитесь с нами</h1>
-                <p style={styles.subtitle}>Мы ответим на все вопросы по организации и проведению конференции</p>
+                <h1 style={styles.title}>{language === 'ru' ? 'Свяжитесь с нами' : 'Contact Us'}</h1>
+                <p style={styles.subtitle}>{language === 'ru' ? 'Мы ответим на все вопросы по организации и проведению конференции' : 'We will answer all questions about the conference'}</p>
             </div>
             
             <div style={styles.container}>
@@ -121,7 +123,7 @@ const Contacts = () => {
                     <div style={styles.card}>
                         <div style={styles.iconBox}><IconMapPin /></div>
                         <div style={styles.cardContent}>
-                            <h3 style={styles.cardTitle}>Место проведения</h3>
+                            <h3 style={styles.cardTitle}>{language === 'ru' ? 'Место проведения' : 'Venue'}</h3>
                             <p style={styles.cardText}>
                                 СГТУ имени Гагарина Ю.А.<br/>
                                 г. Саратов, ул. Политехническая, 77<br/>
@@ -134,7 +136,7 @@ const Contacts = () => {
                     <div style={styles.card}>
                         <div style={styles.iconBox}><IconPhone /></div>
                         <div style={styles.cardContent}>
-                            <h3 style={styles.cardTitle}>Телефоны</h3>
+                            <h3 style={styles.cardTitle}>{language === 'ru' ? 'Телефоны' : 'Phones'}</h3>
                             <p style={styles.cardText}>
                             </p>
                         </div>
@@ -144,7 +146,7 @@ const Contacts = () => {
                     <div style={styles.card}>
                         <div style={styles.iconBox}><IconMail /></div>
                         <div style={styles.cardContent}>
-                            <h3 style={styles.cardTitle}>Электронная почта</h3>
+                            <h3 style={styles.cardTitle}>{language === 'ru' ? 'Электронная почта' : 'Email'}</h3>
                             <p style={styles.cardText}>
                             </p>
                         </div>
@@ -154,7 +156,7 @@ const Contacts = () => {
                     <div style={styles.card}>
                         <div style={styles.iconBox}><IconUser /></div>
                         <div style={styles.cardContent}>
-                            <h3 style={styles.cardTitle}>Ответственный секретарь</h3>
+                            <h3 style={styles.cardTitle}>{language === 'ru' ? 'Ответственный секретарь' : 'Secretary'}</h3>
                             <p style={styles.cardText}>
                             </p>
                         </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const OrganizerDashboard = ({ activeTab }) => {
     // --- ДАННЫЕ ---
@@ -138,6 +139,21 @@ const OrganizerDashboard = ({ activeTab }) => {
             });
             if (res.ok) {
                 setReadyToPublish(prev => prev.map(item => item.id === id ? { ...item, status: 'published' } : item));
+            }
+        } catch (err) { console.error(err); }
+    };
+
+    const handleConfirmPayment = async (id) => {
+        try {
+            const res = await fetch(`http://localhost:5000/api/submissions/${id}/payment`, {
+                method: "PUT", headers: { "Content-Type": "application/json", token: localStorage.token },
+                body: JSON.stringify({ payment_status: 'paid' })
+            });
+            if (res.ok) {
+                setReadyToPublish(prev => prev.map(item => item.id === id ? { ...item, payment_status: 'paid' } : item));
+                alert("Оплата подтверждена");
+            } else {
+                alert("Ошибка подтверждения оплаты");
             }
         } catch (err) { console.error(err); }
     };
@@ -316,7 +332,7 @@ const OrganizerDashboard = ({ activeTab }) => {
                                             {u.role_id !== 2 && (
                                                 <div style={{display:'flex'}}>
                                                     <button onClick={() => changeRole(u.id, 1)} disabled={u.role_id === 1} style={{...btnAction('outline'), opacity: u.role_id === 1 ? 0.5 : 1}}>
-                                                        Назначить Админом
+                                                        Назначить Администратором
                                                     </button>
                                                     <button onClick={() => changeRole(u.id, 3)} disabled={u.role_id === 3} style={{...btnAction('outline'), opacity: u.role_id === 3 ? 0.5 : 1}}>
                                                         Сделать Участником
@@ -436,6 +452,7 @@ const OrganizerDashboard = ({ activeTab }) => {
                                         <th style={thStyle}>Секция</th>
                                         <th style={thStyle}>Автор</th>
                                         <th style={thStyle}>Тема доклада</th>
+                                        <th style={thStyle}>Оплата</th>
                                         <th style={thStyle}>Действие</th>
                                     </tr>
                                 </thead>
@@ -445,6 +462,15 @@ const OrganizerDashboard = ({ activeTab }) => {
                                             <td style={tdStyle}><span style={{fontWeight:'600', fontSize:'13px'}}>{sub.section_name}</span></td>
                                             <td style={tdStyle}>{sub.author_name}</td>
                                             <td style={tdStyle} width="35%">{sub.title}</td>
+                                            <td style={tdStyle}>
+                                                {sub.payment_status === 'paid' ? (
+                                                    <span style={{ color: '#155724', fontSize: '12px', fontWeight: 'bold' }}>Оплачен</span>
+                                                ) : sub.payment_status === 'pending_verification' ? (
+                                                    <span style={{ color: '#856404', fontSize: '12px', fontWeight: 'bold' }}>Ожидает подтверждения</span>
+                                                ) : (
+                                                    <span style={{ color: '#721c24', fontSize: '12px' }}>Не оплачен</span>
+                                                )}
+                                            </td>
                                             <td style={tdStyle}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                     {sub.file_url ? (
@@ -457,8 +483,17 @@ const OrganizerDashboard = ({ activeTab }) => {
                                                         <span style={{ color: '#155724', fontWeight: 'bold', fontSize: '12px', border: '1px solid #c3e6cb', padding: '4px 10px', borderRadius: '4px', display: 'flex', alignItems: 'center', background: '#d4edda' }}>
                                                             <IconCheck /> Опубликован
                                                         </span>
+                                                    ) : sub.payment_status !== 'paid' ? (
+                                                        <button 
+                                                            onClick={() => handleConfirmPayment(sub.id)} 
+                                                            style={{...btnAction(sub.payment_status === 'pending_verification' ? 'success' : 'outline'), opacity: sub.payment_status !== 'pending_verification' ? 0.5 : 1}} 
+                                                            disabled={sub.payment_status !== 'pending_verification'} 
+                                                            title={sub.payment_status !== 'pending_verification' ? "Ожидается оплата от участника" : ""}
+                                                        >
+                                                            Подтвердить оплату
+                                                        </button>
                                                     ) : (
-                                                        <button onClick={() => handlePublish(sub.id)} style={btnAction('success')}>Опубликовать</button>
+                                                        <button onClick={() => handlePublish(sub.id)} style={btnAction('primary')}>Опубликовать</button>
                                                     )}
                                                 </div>
                                             </td>
@@ -570,7 +605,7 @@ const OrganizerDashboard = ({ activeTab }) => {
                                         {statistics.submissions.map((s, i) => (
                                             <li key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f8f9fa' }}>
                                                 <span style={{ color: '#555' }}>
-                                                    {s.status === 'accepted' ? 'Приняты ✅' : s.status === 'published' ? 'Опубликованы 🌟' : s.status === 'rejected' ? 'Отклонены ❌' : 'На проверке ⏳'}
+                                                    {s.status === 'accepted' ? 'Приняты' : s.status === 'published' ? 'Опубликованы' : s.status === 'rejected' ? 'Отклонены' : 'На проверке'}
                                                 </span>
                                                 <strong style={{ color: '#333' }}>{s.count}</strong>
                                             </li>
@@ -612,7 +647,7 @@ const OrganizerDashboard = ({ activeTab }) => {
 
                                 {/* Блок: Нагрузка на администраторов */}
                                 <div style={{ background: '#fff', border: '1px solid #dee2e6', borderRadius: '6px', padding: '20px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-                                    <h4 style={{ margin: '0 0 15px 0', fontSize: '18px', color: '#003366', borderBottom: '2px solid #f1f3f5', paddingBottom: '10px' }}>Нагрузка модераторов</h4>
+                                    <h4 style={{ margin: '0 0 15px 0', fontSize: '18px', color: '#003366', borderBottom: '2px solid #f1f3f5', paddingBottom: '10px' }}>Нагрузка администраторов</h4>
                                     <ul style={{ listStyle: 'none', padding: 0, margin: 0, fontSize: '14px' }}>
                                         {(!statistics.adminLoad || statistics.adminLoad.length === 0) ? <li style={{color: '#999', padding:'10px 0'}}>Администраторы не назначены</li> : null}
                                         {statistics.adminLoad && statistics.adminLoad.map((al, i) => (
@@ -639,26 +674,32 @@ const OrganizerDashboard = ({ activeTab }) => {
                                     {(!statistics.timeline || statistics.timeline.length === 0) ? (
                                         <div style={{color: '#999', padding:'10px 0'}}>Нет данных по датам</div>
                                     ) : (
-                                        <div style={{ display: 'flex', alignItems: 'flex-end', height: '150px', gap: '8px', padding: '10px 0', overflowX: 'auto' }}>
-                                            {statistics.timeline.map((t, i) => {
-                                                const maxCount = Math.max(...statistics.timeline.map(x => parseInt(x.count)));
-                                                const heightPercent = maxCount === 0 ? 0 : (parseInt(t.count) / maxCount) * 100;
-                                                return (
-                                                    <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '40px', flex: 1 }}>
-                                                        <div style={{ fontSize: '11px', color: '#666', marginBottom: '5px' }}>{t.count}</div>
-                                                        <div style={{ 
-                                                            width: '100%', 
-                                                            height: `${Math.max(10, heightPercent)}%`, 
-                                                            background: 'linear-gradient(180deg, #4dabf7 0%, #228be6 100%)', 
-                                                            borderRadius: '4px 4px 0 0',
-                                                            transition: 'height 0.3s ease'
-                                                        }}></div>
-                                                        <div style={{ fontSize: '10px', color: '#888', marginTop: '5px', transform: 'rotate(-45deg)', transformOrigin: 'top left', whiteSpace: 'nowrap', marginTop: '10px' }}>
-                                                            {new Date(t.date).toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit'})}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
+                                        <div style={{ width: '100%', height: '300px', marginTop: '20px' }}>
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <BarChart data={statistics.timeline}>
+                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eaeaea" />
+                                                    <XAxis 
+                                                        dataKey="date" 
+                                                        tickFormatter={(tick) => new Date(tick).toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit'})} 
+                                                        axisLine={false} 
+                                                        tickLine={false}
+                                                        tick={{ fontSize: 12, fill: '#666' }}
+                                                        dy={10}
+                                                    />
+                                                    <YAxis 
+                                                        allowDecimals={false} 
+                                                        axisLine={false} 
+                                                        tickLine={false}
+                                                        tick={{ fontSize: 12, fill: '#666' }}
+                                                    />
+                                                    <Tooltip 
+                                                        labelFormatter={(label) => new Date(label).toLocaleDateString('ru-RU')}
+                                                        formatter={(value) => [value, 'Заявок']}
+                                                        cursor={{ fill: '#f8f9fa' }}
+                                                    />
+                                                    <Bar dataKey="count" fill="#228be6" radius={[4, 4, 0, 0]} barSize={40} />
+                                                </BarChart>
+                                            </ResponsiveContainer>
                                         </div>
                                     )}
                                 </div>

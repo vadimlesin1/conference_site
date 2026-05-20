@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import Footer from '../components/Footer'; 
+import Footer from '../components/Footer';
+import { useLanguage } from '../context/LanguageContext';
 
 const Archive = () => {
+    const { language } = useLanguage();
     const [archives, setArchives] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -25,7 +27,7 @@ const Archive = () => {
 
     // Helpers
     const getYear = (dateStr) => new Date(dateStr).getFullYear();
-    const formatDate = (d) => new Date(d).toLocaleDateString('ru-RU', {day:'numeric', month:'long'});
+    const formatDate = (d) => new Date(d).toLocaleDateString(language === 'ru' ? 'ru-RU' : 'en-US', {day:'numeric', month:'long'});
 
     // --- СТИЛИ ---
     const pageStyle = { background: '#f8f9fa', minHeight: '100vh', display: 'flex', flexDirection: 'column' };
@@ -96,7 +98,7 @@ const Archive = () => {
         color: '#6c757d', border: '1px solid #dee2e6', borderRadius: '6px'
     };
 
-    if (loading) return <div style={{textAlign:'center', marginTop:'50px', color: '#666'}}>Загрузка архива...</div>;
+    if (loading) return <div style={{textAlign:'center', marginTop:'50px', color: '#666'}}>{language === 'ru' ? 'Загрузка архива...' : 'Loading archive...'}</div>;
 
     return (
         <div style={pageStyle}>
@@ -104,11 +106,11 @@ const Archive = () => {
             
             <div style={containerStyle}>
                 <h1 style={headerStyle}>
-                    <IconArchive /> Архив мероприятий
+                    <IconArchive /> {language === 'ru' ? 'Архив мероприятий' : 'Events Archive'}
                 </h1>
 
                 {archives.length === 0 ? (
-                    <div style={emptyStateStyle}>Нет архивных конференций.</div>
+                    <div style={emptyStateStyle}>{language === 'ru' ? 'Нет архивных конференций.' : 'No archived conferences.'}</div>
                 ) : (
                     <div style={gridStyle}>
                         {archives.map(arch => (
@@ -143,11 +145,11 @@ const Archive = () => {
                                 )}
 
                                 <p style={descStyle}>
-                                    {arch.description ? arch.description.slice(0, 120) + (arch.description.length > 120 ? '...' : '') : 'Описание отсутствует'}
+                                    {arch.description ? arch.description.slice(0, 120) + (arch.description.length > 120 ? '...' : '') : (language === 'ru' ? 'Описание отсутствует' : 'No description')}
                                 </p>
 
                                 <div style={footerLinkStyle}>
-                                    Материалы конференции <IconArrowRight />
+                                    {language === 'ru' ? 'Материалы конференции' : 'Conference Materials'} <IconArrowRight />
                                 </div>
                             </Link>
                         ))}

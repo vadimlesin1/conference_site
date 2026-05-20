@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 
 const Navbar = () => {
+    const { language, changeLanguage, t } = useLanguage();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userName, setUserName] = useState("");
     const [showDropdown, setShowDropdown] = useState(false); 
@@ -25,7 +27,7 @@ const Navbar = () => {
                     if (response.ok) {
                         const parseRes = await response.json();
                         const name = parseRes.user ? parseRes.user.full_name : parseRes.full_name;
-                        setUserName(name || "Личный кабинет");
+                        setUserName(name || t('nav.dashboard'));
                         setIsAuthenticated(true);
                         fetchUnreadCount();
                     } else {
@@ -322,19 +324,38 @@ const Navbar = () => {
 
             {/* Меню */}
             <div className="nav-links">
-                <Link to="/" style={linkStyle('/')}>Главная</Link>
-                <Link to="/schedule" style={linkStyle('/schedule')}>Программа</Link>
-                <Link to="/submissions" style={linkStyle('/submissions')}>Доклады</Link>
-                
-                {/* [ИЗМЕНЕНО] Убрал "О конференции", добавил "Новости" */}
-                <Link to="/news" style={linkStyle('/news')}>Новости</Link>
-                
-                <Link to="/archive" style={linkStyle('/archive')}>Архив</Link> 
-                <Link to="/contacts" style={linkStyle('/contacts')}>Контакты</Link>
+                <Link to="/" style={linkStyle('/')}>{t('nav.home')}</Link>
+                <Link to="/schedule" style={linkStyle('/schedule')}>{t('nav.schedule')}</Link>
+                <Link to="/submissions" style={linkStyle('/submissions')}>{t('nav.submissions')}</Link>
+                <Link to="/news" style={linkStyle('/news')}>{t('nav.news')}</Link>
+                <Link to="/archive" style={linkStyle('/archive')}>{t('nav.archive')}</Link> 
+                <Link to="/contacts" style={linkStyle('/contacts')}>{t('nav.contacts')}</Link>
             </div>
 
             {/* Правая часть */}
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}> 
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                {/* Переключатель языка */}
+                <button 
+                    onClick={() => changeLanguage(language === 'ru' ? 'en' : 'ru')}
+                    style={{
+                        background: 'rgba(255,255,255,0.15)',
+                        border: '1px solid rgba(255,255,255,0.3)',
+                        color: '#fff',
+                        padding: '4px 10px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        marginRight: '12px',
+                        transition: 'all 0.2s',
+                        letterSpacing: '1px'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+                    title={language === 'ru' ? 'Switch to English' : 'Переключить на русский'}
+                >
+                    {language === 'ru' ? 'EN' : 'RU'}
+                </button>
                 {isAuthenticated ? (
                     <>
                         {/* Колокольчик */}
@@ -364,7 +385,7 @@ const Navbar = () => {
                                     <div style={notifPanelStyle}>
                                         <div style={notifHeaderStyle}>
                                             <span style={{ fontWeight: '700', fontSize: '15px', color: '#202124' }}>
-                                                Уведомления
+                                                {t('nav.notifications')}
                                             </span>
                                             {unreadCount > 0 && (
                                                 <button 
@@ -374,7 +395,7 @@ const Navbar = () => {
                                                         fontSize: '13px', cursor: 'pointer', fontWeight: '600'
                                                     }}
                                                 >
-                                                    Прочитать все
+                                                    {t('nav.readAll')}
                                                 </button>
                                             )}
                                         </div>
@@ -382,7 +403,7 @@ const Navbar = () => {
                                             {notifications.length === 0 ? (
                                                 <div style={{ padding: '40px 20px', textAlign: 'center', color: '#999' }}>
                                                     <div style={{ fontSize: '32px', marginBottom: '8px' }}>🔔</div>
-                                                    <p style={{ margin: 0, fontSize: '14px' }}>Нет уведомлений</p>
+                                                    <p style={{ margin: 0, fontSize: '14px' }}>{t('nav.noNotifications')}</p>
                                                 </div>
                                             ) : (
                                                 notifications.map(notif => (
@@ -453,7 +474,7 @@ const Navbar = () => {
                                             onMouseEnter={(e) => e.currentTarget.style.background = '#f8f9fa'}
                                             onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
                                         >
-                                            <IconUser /> Личный кабинет
+                                            <IconUser /> {t('nav.dashboard')}
                                         </Link>
                                         
                                         <button 
@@ -462,7 +483,7 @@ const Navbar = () => {
                                             onMouseEnter={(e) => e.currentTarget.style.background = '#fff5f5'}
                                             onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
                                         >
-                                            <IconLogout /> Выйти
+                                            <IconLogout /> {t('nav.logout')}
                                         </button>
                                     </div>
                                 </>
@@ -471,8 +492,8 @@ const Navbar = () => {
                     </>
                 ) : (
                     <div>
-                        <Link to="/login" style={btnLogin}>Войти</Link>
-                        <Link to="/register" style={btnRegister}>Регистрация</Link>
+                        <Link to="/login" style={btnLogin}>{t('nav.login')}</Link>
+                        <Link to="/register" style={btnRegister}>{t('nav.register')}</Link>
                     </div>
                 )}
             </div>

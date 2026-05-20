@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { useLanguage } from '../context/LanguageContext';
 
 const ArchiveDetails = () => {
+    const { language } = useLanguage();
     const { id } = useParams();
     const navigate = useNavigate();
     const [data, setData] = useState(null);
@@ -26,8 +28,8 @@ const ArchiveDetails = () => {
         card: { background: '#fff', border: '1px solid #e0e0e0', padding: '20px', marginBottom: '15px', borderRadius: '4px' }
     };
 
-    if (loading) return <div>Загрузка...</div>;
-    if (!data) return <div>Данные не найдены</div>;
+    if (loading) return <div>{language === 'ru' ? 'Загрузка...' : 'Loading...'}</div>;
+    if (!data) return <div>{language === 'ru' ? 'Данные не найдены' : 'Data not found'}</div>;
 
     // Группируем доклады по секциям
     const sections = {};
@@ -40,7 +42,7 @@ const ArchiveDetails = () => {
         <div>
             <Navbar />
             <div style={styles.container}>
-                <button onClick={() => navigate('/archive')} style={styles.backBtn}>← Назад к списку</button>
+                <button onClick={() => navigate('/archive')} style={styles.backBtn}>{language === 'ru' ? '← Назад к списку' : '← Back to list'}</button>
                 
                 <div style={styles.headerBox}>
                     <h1 style={{margin:0}}>{data.info.title} ({data.info.year})</h1>
@@ -53,7 +55,7 @@ const ArchiveDetails = () => {
                         {sections[secName].map((sub, i) => (
                             <div key={i} style={styles.card}>
                                 <h3 style={{marginTop:0, color:'#333'}}>{sub.title}</h3>
-                                <p style={{fontSize:'14px', color:'#555', fontStyle:'italic'}}>Автор: {sub.speaker_name}</p>
+                                <p style={{fontSize:'14px', color:'#555', fontStyle:'italic'}}>{language === 'ru' ? 'Автор' : 'Author'}: {sub.speaker_name}</p>
                                 <p style={{color:'#666', fontSize:'14px', lineHeight:'1.5'}}>{sub.abstract}</p>
                             </div>
                         ))}

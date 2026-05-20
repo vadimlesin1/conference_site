@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useLanguage } from '../context/LanguageContext';
 
 const AcceptedSubmissions = () => {
+    const { language } = useLanguage();
     const [submissions, setSubmissions] = useState([]);
     const [loading, setLoading] = useState(true);
     
@@ -112,7 +114,7 @@ const AcceptedSubmissions = () => {
             <div style={styles.container}>
                 <div style={styles.header}>
                     <h1 style={styles.title}>
-                        <IconFileText /> Опубликованные доклады
+                        <IconFileText /> {language === 'ru' ? 'Опубликованные доклады' : 'Published Papers'}
                     </h1>
                 </div>
 
@@ -122,7 +124,7 @@ const AcceptedSubmissions = () => {
                         <IconSearch />
                         <input 
                             type="text" 
-                            placeholder="Поиск по теме или автору..." 
+                            placeholder={language === 'ru' ? 'Поиск по теме или автору...' : 'Search by topic or author...'} 
                             style={styles.searchInput}
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
@@ -131,14 +133,14 @@ const AcceptedSubmissions = () => {
                     
                     <div style={styles.filterWrapper}>
                         <span style={{ fontSize: '13px', color: '#555', marginRight: '10px', fontWeight: '600', display: 'flex', alignItems: 'center' }}>
-                            <IconFilter /> Секция:
+                            <IconFilter /> {language === 'ru' ? 'Секция:' : 'Section:'}
                         </span>
                         <select 
                             style={styles.sectionSelect}
                             value={selectedSection}
                             onChange={e => setSelectedSection(e.target.value)}
                         >
-                            <option value="all">Все секции</option>
+                            <option value="all">{language === 'ru' ? 'Все секции' : 'All sections'}</option>
                             {uniqueSections.filter(s => s !== "all").sort().map(sec => (
                                 <option key={sec} value={sec}>{sec}</option>
                             ))}
@@ -147,9 +149,9 @@ const AcceptedSubmissions = () => {
                 </div>
 
                 {loading ? (
-                    <div style={{textAlign:'center', marginTop: '40px', color: '#666'}}>Загрузка списка докладов...</div>
+                    <div style={{textAlign:'center', marginTop: '40px', color: '#666'}}>{language === 'ru' ? 'Загрузка списка докладов...' : 'Loading papers...'}</div>
                 ) : sortedSectionNames.length === 0 ? (
-                    <div style={styles.empty}>По вашему запросу ничего не найдено</div>
+                    <div style={styles.empty}>{language === 'ru' ? 'По вашему запросу ничего не найдено' : 'No results found'}</div>
                 ) : (
                     sortedSectionNames.map(secName => (
                         <div key={secName} style={styles.sectionBlock}>

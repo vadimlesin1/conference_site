@@ -168,6 +168,24 @@ class SubmissionController {
             res.status(500).send("Ошибка сервера");
         }
     }
+    async updatePaymentStatus(req, res) {
+        try {
+            const subId = req.params.id;
+            const { payment_status } = req.body;
+
+            // Обновляем статус оплаты доклада.
+            const result = await pool.query(
+                "UPDATE submissions SET payment_status = $1 WHERE id = $2 RETURNING *",
+                [payment_status, subId]
+            );
+
+            if (result.rows.length === 0) return res.status(404).json("Доклад не найден");
+            res.json(result.rows[0]);
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Ошибка сервера");
+        }
+    }
 }
 
 module.exports = new SubmissionController();
