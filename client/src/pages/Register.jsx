@@ -124,7 +124,7 @@ const Register = () => {
                 <div style={cardStyle}>
                     <div style={headerStyle}>
                         <h1 style={titleStyle}>{t('auth.registerTitle')}</h1>
-                        <p style={subtitleStyle}>{language === 'ru' ? '⚠ Достаточно регистрации только одного из авторов доклада!' : '⚠ Only one author needs to register!'}</p>
+                        <p style={subtitleStyle}>{language === 'ru' ? ' Достаточно регистрации только одного из авторов доклада!' : ' Only one author needs to register!'}</p>
                     </div>
 
                     <form onSubmit={handleSubmit} style={gridStyle}>

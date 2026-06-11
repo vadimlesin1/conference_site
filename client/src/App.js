@@ -19,6 +19,7 @@ import NewsPage from './pages/NewsPage';
 import Archive from './pages/Archive';
 import ArchiveDetails from './pages/ArchiveDetails';
 import PendingVerification from './pages/PendingVerification';
+import Proceedings from './pages/Proceedings';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -44,6 +45,7 @@ function App() {
 
           {/* Публичные страницы */}
           <Route path="/schedule" element={<Schedule />} />
+          <Route path="/proceedings" element={<Proceedings />} />
           
           {/* 2. ДОБАВЛЯЕМ МАРШРУТЫ АРХИВА */}
           <Route path="/archive" element={<Archive />} />

@@ -8,19 +8,16 @@ class AdminController {
     // 1. Получить данные для дашборда
     async getDashboardData(req, res) {
         try {
-            const manager_id = req.user;
 
-            // ШАГ 1: Получаем секции администратора (для активной конф.)
+            // ШАГ 1: Получаем все секции активной конференции
             const sectionRes = await pool.query(
                 `
                 SELECT DISTINCT s.* 
                 FROM sections s
                 JOIN conferences c ON s.conference_id = c.id
-                WHERE s.manager_id = $1
-                  AND c.is_active = true
+                WHERE c.is_active = true
                 ORDER BY s.title
-                `,
-                [manager_id]
+                `
             );
 
             if (sectionRes.rows.length === 0) {
@@ -35,7 +32,7 @@ class AdminController {
             const submissionsRes = await pool.query(`
                 SELECT DISTINCT ON (s.id) 
                        s.id, s.title, s.abstract, s.status, s.file_url, s.section_id,
-                       s.start_time, s.duration, 
+                       s.start_time, s.duration, s.payment_status,
                        sec.section_date as scheduled_day,
                        (u.first_name || ' ' || u.last_name) as speaker_name, u.email,
                        sec.title as section_name,
@@ -100,7 +97,7 @@ class AdminController {
 
             // Отправляем email и создаём уведомление на сайте
             const isAccepted = status === 'accepted';
-            const statusEmoji = isAccepted ? '✅' : '❌';
+            const statusEmoji = isAccepted ? '' : '';
             const statusText = isAccepted ? 'принят' : 'отклонён';
             const htmlBody = isAccepted
                 ? acceptedTemplate({ first_name, last_name, title })
@@ -110,7 +107,7 @@ class AdminController {
             const notifMessage = isAccepted
                 ? `Ваш доклад «${title}» принят! Поздравляем!`
                 : `Ваш доклад «${title}» отклонён.`;
-            
+
             await pool.query(
                 `INSERT INTO notifications (user_id, message, is_read, created_at) 
                  VALUES ($1, $2, false, NOW())`,
@@ -138,18 +135,16 @@ class AdminController {
         try {
             const { id } = req.params;
             const { start_time, duration } = req.body;
-            const manager_id = req.user;
 
-            // Проверяем права, дату секции и что конференция активна
+            // Проверяем что конференция активна
             const checkRes = await pool.query(`
                 SELECT s.id, s.start_time, s.duration, sec.section_date 
                 FROM submissions s
                 JOIN sections sec ON s.section_id = sec.id
                 JOIN conferences c ON sec.conference_id = c.id
                 WHERE s.id = $1 
-                  AND sec.manager_id = $2
                   AND c.is_active = true
-            `, [id, manager_id]);
+            `, [id]);
 
             if (checkRes.rows.length === 0) {
                 return res.status(403).json("У вас нет прав на управление этим докладом или конференция неактивна");

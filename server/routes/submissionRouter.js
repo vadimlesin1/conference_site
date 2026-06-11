@@ -45,5 +45,11 @@ router.get('/download/:filename', authorize, submissionController.downloadFile);
 // Обновление статуса оплаты
 router.put('/:id/payment', authorize, submissionController.updatePaymentStatus);
 
+// Повторная отправка после рецензии (с версионностью)
+router.put('/:id/resubmit', authorize, upload.single('file'), submissionController.resubmitAfterReview);
+
+// Получить версии своего доклада
+router.get('/:id/versions', authorize, submissionController.getMySubmissionVersions);
+
 
 module.exports = router;

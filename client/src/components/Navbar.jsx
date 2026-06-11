@@ -6,11 +6,11 @@ const Navbar = () => {
     const { language, changeLanguage, t } = useLanguage();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [userName, setUserName] = useState("");
-    const [showDropdown, setShowDropdown] = useState(false); 
+    const [showDropdown, setShowDropdown] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
-    
+
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -108,14 +108,14 @@ const Navbar = () => {
         setUserName("");
         setShowDropdown(false);
         setShowNotifications(false);
-        navigate("/"); 
-        window.location.reload(); 
+        navigate("/");
+        window.location.reload();
     };
 
     // --- SVG ИКОНКИ ---
-    const IconUser = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight:8, verticalAlign:'text-bottom'}}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
-    const IconLogout = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginRight:8, verticalAlign:'text-bottom'}}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>;
-    const IconChevron = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{marginLeft:6}}><polyline points="6 9 12 15 18 9"></polyline></svg>;
+    const IconUser = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8, verticalAlign: 'text-bottom' }}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
+    const IconLogout = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8, verticalAlign: 'text-bottom' }}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>;
+    const IconChevron = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginLeft: 6 }}><polyline points="6 9 12 15 18 9"></polyline></svg>;
     const IconBell = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>;
 
     // --- СТИЛИ (Строгий Enterprise) ---
@@ -144,11 +144,11 @@ const Navbar = () => {
     };
 
     const logoIcon = {
-        width: '32px', height: '32px', 
-        background: 'rgba(255,255,255,0.15)', 
-        borderRadius: '4px', 
-        color: 'white', 
-        display: 'flex', alignItems: 'center', justifyContent: 'center', 
+        width: '32px', height: '32px',
+        background: 'rgba(255,255,255,0.15)',
+        borderRadius: '4px',
+        color: 'white',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: '14px', fontWeight: '900',
         border: '1px solid rgba(255,255,255,0.2)'
     };
@@ -204,7 +204,7 @@ const Navbar = () => {
 
     const dropdownStyle = {
         position: 'absolute',
-        top: '110%', 
+        top: '110%',
         right: 0,
         background: 'white',
         boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
@@ -327,15 +327,16 @@ const Navbar = () => {
                 <Link to="/" style={linkStyle('/')}>{t('nav.home')}</Link>
                 <Link to="/schedule" style={linkStyle('/schedule')}>{t('nav.schedule')}</Link>
                 <Link to="/submissions" style={linkStyle('/submissions')}>{t('nav.submissions')}</Link>
+                <Link to="/proceedings" style={linkStyle('/proceedings')}>{language === 'ru' ? 'Сборник' : 'Proceedings'}</Link>
                 <Link to="/news" style={linkStyle('/news')}>{t('nav.news')}</Link>
-                <Link to="/archive" style={linkStyle('/archive')}>{t('nav.archive')}</Link> 
+                <Link to="/archive" style={linkStyle('/archive')}>{t('nav.archive')}</Link>
                 <Link to="/contacts" style={linkStyle('/contacts')}>{t('nav.contacts')}</Link>
             </div>
 
             {/* Правая часть */}
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 {/* Переключатель языка */}
-                <button 
+                <button
                     onClick={() => changeLanguage(language === 'ru' ? 'en' : 'ru')}
                     style={{
                         background: 'rgba(255,255,255,0.15)',
@@ -360,7 +361,7 @@ const Navbar = () => {
                     <>
                         {/* Колокольчик */}
                         <div style={{ position: 'relative' }}>
-                            <button 
+                            <button
                                 style={bellBtnStyle}
                                 onClick={toggleNotifications}
                                 onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
@@ -378,8 +379,8 @@ const Navbar = () => {
                             {/* Панель уведомлений */}
                             {showNotifications && (
                                 <>
-                                    <div 
-                                        style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1001, cursor: 'default' }} 
+                                    <div
+                                        style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1001, cursor: 'default' }}
                                         onClick={() => setShowNotifications(false)}
                                     />
                                     <div style={notifPanelStyle}>
@@ -388,7 +389,7 @@ const Navbar = () => {
                                                 {t('nav.notifications')}
                                             </span>
                                             {unreadCount > 0 && (
-                                                <button 
+                                                <button
                                                     onClick={markAllRead}
                                                     style={{
                                                         background: 'none', border: 'none', color: '#0056b3',
@@ -402,24 +403,24 @@ const Navbar = () => {
                                         <div style={{ overflowY: 'auto', flex: 1 }}>
                                             {notifications.length === 0 ? (
                                                 <div style={{ padding: '40px 20px', textAlign: 'center', color: '#999' }}>
-                                                    <div style={{ fontSize: '32px', marginBottom: '8px' }}>🔔</div>
+                                                    <div style={{ fontSize: '32px', marginBottom: '8px' }}></div>
                                                     <p style={{ margin: 0, fontSize: '14px' }}>{t('nav.noNotifications')}</p>
                                                 </div>
                                             ) : (
                                                 notifications.map(notif => (
-                                                    <div 
-                                                        key={notif.id} 
+                                                    <div
+                                                        key={notif.id}
                                                         style={notifItemStyle(notif.is_read)}
                                                         onMouseEnter={(e) => e.currentTarget.style.background = '#f8f9fa'}
                                                         onMouseLeave={(e) => e.currentTarget.style.background = notif.is_read ? '#fff' : '#eef4ff'}
                                                     >
                                                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
                                                             <span style={{ fontSize: '20px', flexShrink: 0 }}>
-                                                                {notif.message.includes('принят') ? '✅' : notif.message.includes('Назначено') ? '📅' : notif.message.includes('опубликован') ? '🌟' : '❌'}
+                                                                {notif.message.includes('принят') ? '' : notif.message.includes('Назначено') ? '' : notif.message.includes('опубликован') ? '' : ''}
                                                             </span>
                                                             <div style={{ flex: 1 }}>
-                                                                <p style={{ 
-                                                                    margin: '0 0 4px', fontSize: '13px', 
+                                                                <p style={{
+                                                                    margin: '0 0 4px', fontSize: '13px',
                                                                     color: '#333', lineHeight: '1.4',
                                                                     fontWeight: notif.is_read ? '400' : '600'
                                                                 }}>
@@ -448,11 +449,11 @@ const Navbar = () => {
                         {/* Профиль */}
                         <div style={{ position: 'relative' }}>
                             {/* Кнопка с именем */}
-                            <div 
-                                style={userBtnStyle} 
+                            <div
+                                style={userBtnStyle}
                                 onClick={() => { setShowDropdown(!showDropdown); setShowNotifications(false); }}
                             >
-                                <div style={{width:'28px', height:'28px', background:'rgba(255,255,255,0.2)', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'12px', marginRight:'10px'}}>
+                                <div style={{ width: '28px', height: '28px', background: 'rgba(255,255,255,0.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', marginRight: '10px' }}>
                                     {userName.charAt(0).toUpperCase()}
                                 </div>
                                 {userName} <IconChevron />
@@ -461,14 +462,14 @@ const Navbar = () => {
                             {/* Выпадающий список */}
                             {showDropdown && (
                                 <>
-                                    <div 
-                                        style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1000, cursor: 'default' }} 
+                                    <div
+                                        style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1000, cursor: 'default' }}
                                         onClick={() => setShowDropdown(false)}
                                     />
-                                    
+
                                     <div style={dropdownStyle}>
-                                        <Link 
-                                            to="/dashboard" 
+                                        <Link
+                                            to="/dashboard"
                                             style={dropdownItemStyle}
                                             onClick={() => setShowDropdown(false)}
                                             onMouseEnter={(e) => e.currentTarget.style.background = '#f8f9fa'}
@@ -476,10 +477,10 @@ const Navbar = () => {
                                         >
                                             <IconUser /> {t('nav.dashboard')}
                                         </Link>
-                                        
-                                        <button 
+
+                                        <button
                                             onClick={handleLogout}
-                                            style={{...dropdownItemStyle, color: '#e03131', borderBottom: 'none'}}
+                                            style={{ ...dropdownItemStyle, color: '#e03131', borderBottom: 'none' }}
                                             onMouseEnter={(e) => e.currentTarget.style.background = '#fff5f5'}
                                             onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
                                         >

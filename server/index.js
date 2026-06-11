@@ -9,9 +9,11 @@ const authRouter = require('./routes/authRouter');
 const dashboardRouter = require('./routes/dashboardRouter');
 const submissionRouter = require('./routes/submissionRouter'); 
 const organizerRouter = require('./routes/organizerRouter');
-const publicRouter = require('./routes/publicRouter'); // <--- Проверь, что файл так и называется!
+const publicRouter = require('./routes/publicRouter');
 const adminRouter = require('./routes/adminRouter');
 const notificationRouter = require('./routes/notificationRouter');
+const reviewRouter = require('./routes/reviewRouter');
+const programCommitteeRouter = require('./routes/programCommitteeRouter');
 
 // middleware
 app.use(cors());
@@ -26,8 +28,10 @@ app.use('/api/dashboard', dashboardRouter);
 app.use('/api/organizer', organizerRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/submissions', submissionRouter); 
-app.use('/api/public', publicRouter); // <--- Подключение расписания
+app.use('/api/public', publicRouter);
 app.use('/api/notifications', notificationRouter);
+app.use('/api/review', reviewRouter);
+app.use('/api/pc', programCommitteeRouter);
 
 // server/index.js (примерно)
 const archiveController = require('./controllers/archiveController');

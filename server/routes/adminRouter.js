@@ -3,13 +3,13 @@ const adminController = require('../controllers/adminController');
 const authorize = require('../middleware/authorize');
 const checkRole = require('../middleware/checkRole');
 
-// GET: Получить данные дашборда (секции + заявки)
-router.get('/dashboard', authorize, checkRole(1), adminController.getDashboardData);
+// Управление секцией (доклады + расписание) — доступно ПК (5) и Администратору ПК (2)
+router.get('/dashboard', authorize, checkRole([2, 5]), adminController.getDashboardData);
 
-// PUT: Изменить статус заявки (принять/отклонить)
-router.put('/submissions/:id', authorize, checkRole(1), adminController.updateSubmissionStatus);
+// Изменить статус заявки (принять/отклонить)
+router.put('/submissions/:id', authorize, checkRole([2, 5]), adminController.updateSubmissionStatus);
 
-// PUT: Установить точное ВРЕМЯ выступления (Администратор)
-router.put('/schedule/:id', authorize, checkRole(1), adminController.setSchedule);
+// Установить точное ВРЕМЯ выступления
+router.put('/schedule/:id', authorize, checkRole([2, 5]), adminController.setSchedule);
 
 module.exports = router;

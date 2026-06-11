@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom'; 
-import OrganizerDashboard from './OrganizerDashboard'; 
-import AdminDashboard from './AdminDashboard'; 
+import { Link } from 'react-router-dom';
+import OrganizerDashboard from './OrganizerDashboard';
 import ParticipantDashboard from './ParticipantDashboard';
-import Navbar from '../components/Navbar'; 
+import ReviewerDashboard from './ReviewerDashboard';
+import ProgramCommitteeDashboard from './ProgramCommitteeDashboard';
+import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ProfileEditing from '../components/ProfileEditing';
 import { useLanguage } from '../context/LanguageContext';
@@ -11,8 +12,9 @@ import { useLanguage } from '../context/LanguageContext';
 const Dashboard = ({ setAuth }) => {
     const { t, language } = useLanguage();
     const [name, setName] = useState("");
-    const [roleId, setRoleId] = useState(null); 
+    const [roleId, setRoleId] = useState(null);
     const [submissions, setSubmissions] = useState([]);
+    const [activeConference, setActiveConference] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const [activeTab, setActiveTab] = useState(null);
@@ -31,20 +33,25 @@ const Dashboard = ({ setAuth }) => {
             }
 
             const parseRes = await response.json();
-            
+
             if (parseRes.user) {
                 setName(parseRes.user.full_name);
                 setRoleId(parseRes.user.role_id);
-                // Выставляем дефолтную вкладку
-                if (parseRes.user.role_id === 2) setActiveTab('sections');
-                else if (parseRes.user.role_id === 1) setActiveTab('applications');
-                else setActiveTab('my_submissions');
+                // Дефолтная вкладка по роли
+                if (parseRes.user.role_id === 2) setActiveTab('conferences');      // Админ ПК
+                else if (parseRes.user.role_id === 5) setActiveTab('pc_submissions'); // ПК
+                else if (parseRes.user.role_id === 4) setActiveTab('assigned');       // Рецензент
+                else setActiveTab('my_submissions');                                  // Участник
             }
-            
+
             if (parseRes.submissions) {
                 setSubmissions(parseRes.submissions);
             }
-            
+
+            if (parseRes.activeConference) {
+                setActiveConference(parseRes.activeConference);
+            }
+
             setLoading(false);
         } catch (err) {
             console.error(err.message);
@@ -56,11 +63,6 @@ const Dashboard = ({ setAuth }) => {
         getProfile();
     }, []);
 
-    // --- ИКОНКИ (Lucide Style) ---
-    const IconPlus = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight:6}}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
-    const IconClock = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight:6}}><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>;
-    const IconMapPin = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight:6}}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>;
-
     // --- СТИЛИ САЙДБАРА ---
     const sidebarStyle = {
         width: '280px',
@@ -68,13 +70,13 @@ const Dashboard = ({ setAuth }) => {
         borderRight: '1px solid #dee2e6',
         display: 'flex',
         flexDirection: 'column',
-        minHeight: 'calc(100vh - 64px)', // Navbar height
+        minHeight: 'calc(100vh - 64px)',
         flexShrink: 0
     };
 
     const profileBoxStyle = {
         padding: '30px 20px',
-        borderBottom: '3px solid #003366', // Акцентное разделение из макета
+        borderBottom: '3px solid #003366',
         textAlign: 'center',
         background: '#f8f9fa'
     };
@@ -108,50 +110,112 @@ const Dashboard = ({ setAuth }) => {
         alignItems: 'center'
     });
 
-    if (loading) return <div style={{textAlign:'center', marginTop:'50px', color: '#666'}}>{t('common.loading')}</div>;
+    const sectionLabel = (text) => (
+        <>
+            <div style={{ borderTop: '1px solid #e0e4e8', marginTop: '10px' }}></div>
+            <div style={{ padding: '12px 25px 6px', fontSize: '11px', color: '#999', textTransform: 'uppercase', fontWeight: 'bold', letterSpacing: '0.5px' }}>{text}</div>
+        </>
+    );
+
+    if (loading) return <div style={{ textAlign: 'center', marginTop: '50px', color: '#666' }}>{t('common.loading')}</div>;
 
     // Определяем Роль строкой
-    const roleName = roleId === 2 ? (language === 'ru' ? 'Организатор' : 'Organizer') : roleId === 1 ? (language === 'ru' ? 'Администратор' : 'Admin') : (language === 'ru' ? 'Участник' : 'Participant');
+    const roleNames = {
+        2: language === 'ru' ? 'Администратор ПК' : 'PC Admin',
+        3: language === 'ru' ? 'Участник' : 'Participant',
+        4: language === 'ru' ? 'Рецензент' : 'Reviewer',
+        5: language === 'ru' ? 'Программный комитет' : 'Program Committee'
+    };
+    const roleName = roleNames[roleId] || (language === 'ru' ? 'Участник' : 'Participant');
 
     return (
         <div style={{ background: '#f8f9fa', minHeight: '100vh' }}>
             <Navbar />
-            
+
+
+
             <div className="dashboard-layout" style={{ display: 'flex', maxWidth: '1400px', margin: '0 auto', background: '#fff', minHeight: 'calc(100vh - 64px)', boxShadow: '0 0 10px rgba(0,0,0,0.05)' }}>
-                
+
                 {/* ЛЕВЫЙ САЙДБАР */}
                 <div className="dashboard-sidebar" style={sidebarStyle}>
                     <div style={profileBoxStyle}>
                         <h2 style={nameStyle}>{name}</h2>
                         <div style={roleStyle}>{roleName}</div>
                     </div>
-                    
+
                     <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                         <div style={{ borderBottom: '1px solid #f1f3f5' }}>
                             <div style={tabItemStyle(activeTab === 'profile')} onClick={() => setActiveTab('profile')}>{t('dashboard.profile')}</div>
                         </div>
 
-                        {/* ВКЛАДКИ ОРГАНИЗАТОРА */}
+                        {/* ===== АДМИНИСТРАТОР ПК (role 2) ===== */}
                         {roleId === 2 && (
                             <>
+                                {sectionLabel('Управление')}
+                                <div style={tabItemStyle(activeTab === 'conferences')} onClick={() => setActiveTab('conferences')}>
+                                    {language === 'ru' ? 'Конференции' : 'Conferences'}
+                                </div>
                                 <div style={tabItemStyle(activeTab === 'sections')} onClick={() => setActiveTab('sections')}>{t('dashboard.sections')}</div>
                                 <div style={tabItemStyle(activeTab === 'users')} onClick={() => setActiveTab('users')}>{t('dashboard.users')}</div>
-                                <div style={tabItemStyle(activeTab === 'schedule')} onClick={() => setActiveTab('schedule')}>{t('dashboard.schedule')}</div>
-                                <div style={tabItemStyle(activeTab === 'publish')} onClick={() => setActiveTab('publish')}>{t('dashboard.publish')}</div>
                                 <div style={tabItemStyle(activeTab === 'news')} onClick={() => setActiveTab('news')}>{t('dashboard.news')}</div>
+                                <div style={tabItemStyle(activeTab === 'payment_confirm')} onClick={() => setActiveTab('payment_confirm')}>
+                                    {language === 'ru' ? 'Подтверждение оплаты' : 'Payment Confirmation'}
+                                </div>
+                                <div style={tabItemStyle(activeTab === 'publish')} onClick={() => setActiveTab('publish')}>
+                                    {language === 'ru' ? 'Опубликовать сборник' : 'Publish Proceedings'}
+                                </div>
                                 <div style={tabItemStyle(activeTab === 'statistics')} onClick={() => setActiveTab('statistics')}>{t('dashboard.statistics')}</div>
+
+                                {sectionLabel('Рецензирование')}
+                                <div style={tabItemStyle(activeTab === 'pc_submissions')} onClick={() => setActiveTab('pc_submissions')}>
+                                    {language === 'ru' ? 'Доклады' : 'Submissions'}
+                                </div>
+                                <div style={tabItemStyle(activeTab === 'pc_reviews')} onClick={() => setActiveTab('pc_reviews')}>
+                                    {language === 'ru' ? 'Рецензии' : 'Reviews'}
+                                </div>
+                                <div style={tabItemStyle(activeTab === 'pc_stats')} onClick={() => setActiveTab('pc_stats')}>
+                                    {language === 'ru' ? 'Статистика рецензий' : 'Review Statistics'}
+                                </div>
+                                <div style={tabItemStyle(activeTab === 'pc_program')} onClick={() => setActiveTab('pc_program')}>
+                                    {language === 'ru' ? 'Программа конференции' : 'Conference Program'}
+                                </div>
+
                             </>
                         )}
-                        
-                        {/* ВКЛАДКИ АДМИНИСТРАТОРА */}
-                        {roleId === 1 && (
+
+                        {/* ===== ПРОГРАММНЫЙ КОМИТЕТ (role 5) ===== */}
+                        {roleId === 5 && (
                             <>
-                                <div style={tabItemStyle(activeTab === 'applications')} onClick={() => setActiveTab('applications')}>{t('dashboard.submissions')}</div>
-                                <div style={tabItemStyle(activeTab === 'schedule')} onClick={() => setActiveTab('schedule')}>{t('dashboard.schedule')}</div>
+                                {sectionLabel('Рецензирование')}
+                                <div style={tabItemStyle(activeTab === 'pc_submissions')} onClick={() => setActiveTab('pc_submissions')}>
+                                    {language === 'ru' ? 'Доклады' : 'Submissions'}
+                                </div>
+                                <div style={tabItemStyle(activeTab === 'pc_reviews')} onClick={() => setActiveTab('pc_reviews')}>
+                                    {language === 'ru' ? 'Рецензии' : 'Reviews'}
+                                </div>
+                                <div style={tabItemStyle(activeTab === 'pc_stats')} onClick={() => setActiveTab('pc_stats')}>
+                                    {language === 'ru' ? 'Статистика рецензий' : 'Review Statistics'}
+                                </div>
+                                <div style={tabItemStyle(activeTab === 'pc_program')} onClick={() => setActiveTab('pc_program')}>
+                                    {language === 'ru' ? 'Программа конференции' : 'Conference Program'}
+                                </div>
+
                             </>
                         )}
-                        
-                        {/* ВКЛАДКИ УЧАСТНИКА */}
+
+                        {/* ===== РЕЦЕНЗЕНТ (role 4) ===== */}
+                        {roleId === 4 && (
+                            <>
+                                <div style={tabItemStyle(activeTab === 'assigned')} onClick={() => setActiveTab('assigned')}>
+                                    {language === 'ru' ? 'Мои рецензии' : 'My Reviews'}
+                                </div>
+                                <div style={tabItemStyle(activeTab === 'available')} onClick={() => setActiveTab('available')}>
+                                    {language === 'ru' ? 'Доступные доклады' : 'Available Submissions'}
+                                </div>
+                            </>
+                        )}
+
+                        {/* ===== УЧАСТНИК (role 3) ===== */}
                         {roleId === 3 && (
                             <>
                                 <div style={tabItemStyle(activeTab === 'my_submissions')} onClick={() => setActiveTab('my_submissions')}>{t('dashboard.mySubmissions')}</div>
@@ -163,16 +227,27 @@ const Dashboard = ({ setAuth }) => {
 
                 {/* ПРАВАЯ ЧАСТЬ (КОНТЕНТ) */}
                 <div style={{ flex: 1, padding: '40px', background: '#fcfcfd' }}>
-                    
+
                     {/* РЕНДЕР КОМПОНЕНТОВ В ЗАВИСИМОСТИ ОТ РОЛИ И ВКЛАДКИ */}
                     {activeTab === 'profile' ? (
                         <ProfileEditing />
+
+                    ) : (activeTab && activeTab.startsWith('pc_')) || activeTab === 'applications' ? (
+                        /* ПК-вкладки + Заявки/Расписание — и для role 2, и для role 5 */
+                        <ProgramCommitteeDashboard activeTab={activeTab} activeConference={activeConference} roleId={roleId} />
+
                     ) : roleId === 2 ? (
-                        <OrganizerDashboard activeTab={activeTab} /> 
-                    ) : roleId === 1 ? (
-                        <AdminDashboard activeTab={activeTab} />
+                        /* Остальные вкладки Админа ПК */
+                        <OrganizerDashboard activeTab={activeTab} activeConference={activeConference} />
+
+                    ) : roleId === 4 ? (
+                        <ReviewerDashboard activeTab={activeTab} activeConference={activeConference} />
+
+                    ) : roleId === 5 ? (
+                        <ProgramCommitteeDashboard activeTab={activeTab} activeConference={activeConference} roleId={roleId} />
+
                     ) : (
-                        <ParticipantDashboard activeTab={activeTab} submissions={submissions} name={name} refreshData={getProfile} />
+                        <ParticipantDashboard activeTab={activeTab} submissions={submissions} name={name} refreshData={getProfile} activeConference={activeConference} />
                     )}
                 </div>
             </div>

@@ -72,7 +72,7 @@ const PendingVerification = () => {
 
             <div style={containerStyle}>
                 <div style={cardStyle}>
-                    <div style={iconStyle}>✉️</div>
+                    <div style={iconStyle}>️</div>
                     <h2 style={titleStyle}>{language === 'ru' ? 'Остался один шаг!' : 'One more step!'}</h2>
                     <p style={textStyle}>
                         {language === 'ru'

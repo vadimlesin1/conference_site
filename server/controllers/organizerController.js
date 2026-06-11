@@ -4,6 +4,83 @@ const { publishedTemplate } = require('../emailTemplates');
 
 class OrganizerController {
 
+    // --- КОНФЕРЕНЦИИ ---
+    async getConferences(req, res) {
+        try {
+            const result = await pool.query("SELECT * FROM conferences ORDER BY created_at DESC");
+            res.json(result.rows);
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Ошибка сервера");
+        }
+    }
+
+    async createConference(req, res) {
+        try {
+            const { title, description, date_start, date_end, location, submission_deadline, program_formation_date } = req.body;
+            const result = await pool.query(
+                `INSERT INTO conferences (title, description, date_start, date_end, location, submission_deadline, program_formation_date, is_active)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, false) RETURNING *`,
+                [title, description || '', date_start, date_end, location || null, submission_deadline || null, program_formation_date || null]
+            );
+            res.json(result.rows[0]);
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Ошибка сервера");
+        }
+    }
+
+    async updateConference(req, res) {
+        try {
+            const { id } = req.params;
+            const { title, description, date_start, date_end, location, submission_deadline, program_formation_date } = req.body;
+            await pool.query(
+                `UPDATE conferences SET title=$1, description=$2, date_start=$3, date_end=$4, location=$5, submission_deadline=$6, program_formation_date=$7 WHERE id=$8`,
+                [title, description || '', date_start, date_end, location || null, submission_deadline || null, program_formation_date || null, id]
+            );
+            res.json("Конференция обновлена");
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Ошибка сервера");
+        }
+    }
+
+    async activateConference(req, res) {
+        try {
+            const { id } = req.params;
+            // Деактивируем все
+            await pool.query("UPDATE conferences SET is_active = false");
+            // Активируем выбранную
+            await pool.query("UPDATE conferences SET is_active = true WHERE id = $1", [id]);
+            res.json("Конференция активирована");
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Ошибка сервера");
+        }
+    }
+
+    async uploadProceedings(req, res) {
+        try {
+            const { id } = req.params;
+            
+            if (!req.file) {
+                return res.status(400).send("Файл не загружен");
+            }
+
+            const fileUrl = `/uploads/${req.file.filename}`;
+
+            await pool.query(
+                "UPDATE conferences SET proceedings_url = $1 WHERE id = $2",
+                [fileUrl, id]
+            );
+
+            res.json({ message: "Сборник загружен", url: fileUrl });
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Ошибка сервера при загрузке сборника");
+        }
+    }
+
     // 1. Получить список пользователей
     async getUsers(req, res) {
         try {
@@ -23,13 +100,10 @@ class OrganizerController {
     async getAllSections(req, res) {
         try {
             const sections = await pool.query(`
-                SELECT s.id, s.title, s.room, s.section_date, 
-                       c.title as conference_name, 
-                       (u.first_name || ' ' || u.last_name) as manager_name,
-                       s.manager_id
+                SELECT s.id, s.title, s.room, s.section_date, s.managers_text,
+                       c.title as conference_name
                 FROM sections s
                 JOIN conferences c ON s.conference_id = c.id
-                LEFT JOIN users u ON s.manager_id = u.id
                 WHERE c.is_active = true 
                 ORDER BY s.id DESC
             `);
@@ -40,16 +114,14 @@ class OrganizerController {
         }
     }
 
-    // 3. [ИСПРАВЛЕНО] Создать новую секцию (Авто-привязка к активной конференции)
+    // 3. Создать новую секцию (Авто-привязка к активной конференции)
     async createSection(req, res) {
         try {
-            // conference_id из body больше не нужен, мы найдем его сами
-            const { title, manager_id, room } = req.body;
-            const manager = manager_id === "" ? null : manager_id;
+            const { title, managers_text, room } = req.body;
 
             // ШАГ 1: Ищем ID активной конференции
             const activeConf = await pool.query("SELECT id FROM conferences WHERE is_active = true LIMIT 1");
-            
+
             if (activeConf.rows.length === 0) {
                 return res.status(400).json("Ошибка: В базе нет активной конференции. Сначала активируйте одну из них.");
             }
@@ -58,8 +130,8 @@ class OrganizerController {
 
             // ШАГ 2: Создаем секцию с найденным ID
             const newSection = await pool.query(
-                "INSERT INTO sections (title, conference_id, manager_id, room) VALUES($1, $2, $3, $4) RETURNING *",
-                [title, activeConferenceId, manager, room]
+                "INSERT INTO sections (title, conference_id, managers_text, room) VALUES($1, $2, $3, $4) RETURNING *",
+                [title, activeConferenceId, managers_text || null, room]
             );
 
             res.json(newSection.rows[0]);
@@ -88,10 +160,10 @@ class OrganizerController {
     async updateSectionInfo(req, res) {
         try {
             const { id } = req.params;
-            const { title, room } = req.body;
+            const { title, room, managers_text } = req.body;
             await pool.query(
-                "UPDATE sections SET title = $1, room = $2 WHERE id = $3",
-                [title, room, id]
+                "UPDATE sections SET title = $1, room = $2, managers_text = $3 WHERE id = $4",
+                [title, room, managers_text || null, id]
             );
             res.json("Секция обновлена");
         } catch (err) {
@@ -103,14 +175,13 @@ class OrganizerController {
     async updateSectionManager(req, res) {
         try {
             const { id } = req.params;
-            let { manager_id } = req.body;
-            if (manager_id === "") manager_id = null;
+            const { managers_text } = req.body;
 
             await pool.query(
-                "UPDATE sections SET manager_id = $1 WHERE id = $2",
-                [manager_id, id]
+                "UPDATE sections SET managers_text = $1 WHERE id = $2",
+                [managers_text || null, id]
             );
-            res.json("Менеджер секции обновлен");
+            res.json("Руководители секции обновлены");
         } catch (err) {
             console.error(err.message);
             res.status(500).send("Ошибка сервера");
@@ -142,8 +213,24 @@ class OrganizerController {
     // 7. Назначить ДАТУ проведения СЕКЦИИ
     async setSectionDate(req, res) {
         try {
-            const { id } = req.params; 
-            const { section_date } = req.body; 
+            const { id } = req.params;
+            const { section_date } = req.body;
+
+            // Проверяем: дата секции не раньше даты формирования программы
+            const confRes = await pool.query(`
+                SELECT c.program_formation_date 
+                FROM sections s 
+                JOIN conferences c ON s.conference_id = c.id 
+                WHERE s.id = $1
+            `, [id]);
+
+            if (confRes.rows.length > 0 && confRes.rows[0].program_formation_date) {
+                const programDate = new Date(confRes.rows[0].program_formation_date);
+                const sectionDate = new Date(section_date);
+                if (sectionDate < programDate) {
+                    return res.status(400).json(`Дата секции не может быть раньше даты формирования программы (${programDate.toISOString().split('T')[0]})`);
+                }
+            }
 
             await pool.query(
                 "UPDATE sections SET section_date = $1 WHERE id = $2",
@@ -226,7 +313,7 @@ class OrganizerController {
                 await transporter.sendMail({
                     from: process.env.EMAIL_USER,
                     to: email,
-                    subject: `🌟 Ваш доклад опубликован — ${title}`,
+                    subject: ` Ваш доклад опубликован — ${title}`,
                     html: publishedTemplate({ first_name, last_name, title })
                 });
             } catch (emailErr) {
@@ -234,6 +321,49 @@ class OrganizerController {
             }
 
             res.json("Доклад опубликован на сайте");
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Ошибка сервера");
+        }
+    }
+
+    // Подтвердить оплату доклада
+    async confirmPayment(req, res) {
+        try {
+            const { id } = req.params;
+            const result = await pool.query(
+                "UPDATE submissions SET payment_status = 'paid' WHERE id = $1 AND status = 'accepted' RETURNING id, title",
+                [id]
+            );
+            if (result.rows.length === 0) {
+                return res.status(404).json("Доклад не найден или не принят");
+            }
+
+            // Уведомление автору
+            const subRes = await pool.query("SELECT user_id, title FROM submissions WHERE id = $1", [id]);
+            if (subRes.rows.length > 0) {
+                await pool.query(
+                    `INSERT INTO notifications (user_id, message, is_read, created_at) VALUES ($1, $2, false, NOW())`,
+                    [subRes.rows[0].user_id, `Оплата за доклад «${subRes.rows[0].title}» подтверждена.`]
+                );
+            }
+
+            res.json("Оплата подтверждена");
+        } catch (err) {
+            console.error(err.message);
+            res.status(500).send("Ошибка сервера");
+        }
+    }
+
+    // Отменить подтверждение оплаты
+    async cancelPayment(req, res) {
+        try {
+            const { id } = req.params;
+            await pool.query(
+                "UPDATE submissions SET payment_status = NULL WHERE id = $1",
+                [id]
+            );
+            res.json("Оплата отменена");
         } catch (err) {
             console.error(err.message);
             res.status(500).send("Ошибка сервера");
@@ -265,7 +395,7 @@ class OrganizerController {
             res.status(500).send("Ошибка сервера");
         }
     }
-    
+
     async getOrganizerNews(req, res) {
         try {
             const news = await pool.query(`
@@ -328,7 +458,7 @@ class OrganizerController {
                 const today = new Date();
                 const filledTimeline = [];
                 let currentDate = new Date(firstDate);
-                
+
                 while (currentDate <= today) {
                     const dateStr = currentDate.toISOString().split('T')[0];
                     const existing = timelineData.find(d => d.date === dateStr);
@@ -341,26 +471,28 @@ class OrganizerController {
                 timelineData = filledTimeline;
             }
 
-            // 5. Нагрузка на модераторов (по секциям)
-            const adminLoadStat = await pool.query(`
-                SELECT u.first_name || ' ' || u.last_name as admin_name, 
-                       sec.title as section_name,
-                       COUNT(s.id) as total_submissions,
-                       SUM(CASE WHEN s.status = 'pending' THEN 1 ELSE 0 END) as pending_submissions
-                FROM sections sec
-                JOIN conferences c ON sec.conference_id = c.id
-                JOIN users u ON sec.manager_id = u.id
-                LEFT JOIN submissions s ON s.section_id = sec.id
-                WHERE c.is_active = true
-                GROUP BY u.id, sec.id
+            // 5. Нагрузка на рецензентов
+            const reviewerLoadStat = await pool.query(`
+                SELECT (u.first_name || ' ' || u.last_name) as reviewer_name,
+                       COUNT(ra.id) as total_assigned,
+                       SUM(CASE WHEN ra.status = 'completed' THEN 1 ELSE 0 END) as completed,
+                       SUM(CASE WHEN ra.status IN ('assigned', 'in_progress') THEN 1 ELSE 0 END) as pending
+                FROM users u
+                LEFT JOIN review_assignments ra ON ra.reviewer_id = u.id
+                LEFT JOIN submissions s ON ra.submission_id = s.id
+                LEFT JOIN sections sec ON s.section_id = sec.id
+                LEFT JOIN conferences c ON sec.conference_id = c.id AND c.is_active = true
+                WHERE u.role_id = 4
+                GROUP BY u.id, u.first_name, u.last_name
+                ORDER BY total_assigned DESC
             `);
-            
+
             res.json({
                 users: usersStat.rows,
                 submissions: submissionsStat.rows,
                 sections: sectionStat.rows,
                 timeline: timelineData,
-                adminLoad: adminLoadStat.rows
+                reviewerLoad: reviewerLoadStat.rows
             });
         } catch (err) {
             console.error(err.message);
@@ -368,5 +500,7 @@ class OrganizerController {
         }
     }
 }
+
+module.exports = new OrganizerController();
 
 module.exports = new OrganizerController();

@@ -28,7 +28,7 @@ class AuthController {
             const salt = await bcrypt.genSalt(10);
             const bcryptPassword = await bcrypt.hash(password, salt);
 
-            // 🔑 генерируем токен
+            //  генерируем токен
             const token = crypto.randomBytes(32).toString("hex");
 
             const newUser = await pool.query(
@@ -46,7 +46,7 @@ class AuthController {
                 ]
             );
 
-            // 📧 отправка письма
+            //  отправка письма
             const transporter = nodemailer.createTransport({
                 host: "smtp.mail.ru",
                 port: 465,
@@ -117,7 +117,7 @@ class AuthController {
                 return res.status(401).json("Почта или пароль неверны");
             }
 
-            // ✅ ВОТ ЗДЕСЬ проверка
+            //  ВОТ ЗДЕСЬ проверка
             if (!user.rows[0].is_verified) {
                 return res.status(403).json("Подтвердите email перед входом");
             }

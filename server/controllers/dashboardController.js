@@ -21,29 +21,36 @@ class DashboardController {
             // Склеиваем имя
             const fullName = `${userData.first_name} ${userData.last_name}`;
 
-            // 2. ЗАПРОС ДОКЛАДОВ (ОБНОВЛЕННЫЙ)
+            // 2. ЗАПРОС ДОКЛАДОВ (ТОЛЬКО АКТИВНАЯ КОНФЕРЕНЦИЯ)
             const submissions = await pool.query(
-                `SELECT s.id, s.title, s.status, s.created_at, 
+                `SELECT s.id, s.title, s.abstract, s.status, s.created_at, 
                         s.start_time, s.duration, s.file_url,
                         s.advisor_name, s.advisor_email, s.advisor_is_author,
                         s.payment_status, s.coauthors_list,
+                        s.rejection_count, s.current_version, s.section_id,
                         sec.title as section_name,
-                        sec.room                    -- <--- ДОБАВЛЕНА АУДИТОРИЯ
+                        sec.room
                  FROM submissions s
-                 LEFT JOIN sections sec ON s.section_id = sec.id
-                 WHERE s.user_id = $1
+                 JOIN sections sec ON s.section_id = sec.id
+                 JOIN conferences c ON sec.conference_id = c.id
+                 WHERE s.user_id = $1 AND c.is_active = true
                  ORDER BY s.created_at DESC`,
                 [userId]
             );
 
-            // 3. ОТВЕТ НА ФРОНТЕНД
+            // 3. ЗАПРОС АКТИВНОЙ КОНФЕРЕНЦИИ
+            const conf = await pool.query("SELECT * FROM conferences WHERE is_active = true LIMIT 1");
+            const activeConference = conf.rows.length > 0 ? conf.rows[0] : null;
+
+            // 4. ОТВЕТ НА ФРОНТЕНД
             res.json({
                 user: {
                     full_name: fullName,       
                     role_id: userData.role_id, 
                     email: userData.email
                 },
-                submissions: submissions.rows
+                submissions: submissions.rows,
+                activeConference: activeConference
             });
 
         } catch (err) {

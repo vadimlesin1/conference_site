@@ -2,9 +2,35 @@ const pool = require('../db');
 
 class PublicController {
 
-    // 1. Получить расписание (Расписание должно быть полным: принятые + опубликованные)
+    // 1. Получить расписание (только оплаченные доклады, после даты формирования программы)
     async getSchedule(req, res) {
         try {
+            // Проверяем дату формирования программы
+            const confRes = await pool.query(`
+                SELECT id, program_formation_date 
+                FROM conferences 
+                WHERE is_active = true 
+                ORDER BY date_start DESC 
+                LIMIT 1
+            `);
+
+            if (confRes.rows.length === 0) {
+                return res.json([]);
+            }
+
+            const conf = confRes.rows[0];
+
+            // Если дата формирования программы установлена и ещё не наступила — возвращаем пустой массив
+            if (conf.program_formation_date) {
+                const now = new Date();
+                now.setHours(0, 0, 0, 0);
+                const formDate = new Date(conf.program_formation_date);
+                formDate.setHours(0, 0, 0, 0);
+                if (now.getTime() < formDate.getTime()) {
+                    return res.json([]);
+                }
+            }
+
             const result = await pool.query(`
                 SELECT s.id, s.title, s.abstract, s.start_time, s.duration,
                        sec.title as section_name, sec.room,
@@ -13,38 +39,27 @@ class PublicController {
                 JOIN sections sec ON s.section_id = sec.id
                 JOIN conferences c ON sec.conference_id = c.id
                 JOIN users u ON s.user_id = u.id
-                WHERE s.status IN ('accepted', 'published') -- В расписании показываем всё, что одобрено
+                WHERE s.status IN ('accepted', 'published')
+                  AND s.payment_status = 'paid'
                   AND s.start_time IS NOT NULL
-                  AND c.id = (
-                      SELECT id FROM conferences 
-                      WHERE is_active = true 
-                      ORDER BY date_start DESC 
-                      LIMIT 1
-                  )
+                  AND c.id = $1
                 ORDER BY s.start_time ASC
-            `);
+            `, [conf.id]);
             res.json(result.rows);
         } catch (err) {
             console.error(err.message);
             res.status(500).send("Ошибка сервера");
         }
     }
-    
-        // 2. Получить список секций
+
+    // 2. Получить список секций
     async getAllSections(req, res) {
         try {
             const sections = await pool.query(`
-                SELECT s.id, s.title, s.room, s.section_date, -- <--- ДОБАВИЛ section_date
-                       (u.first_name || ' ' || u.last_name) as manager_name
+                SELECT s.id, s.title, s.room, s.section_date, s.managers_text
                 FROM sections s
                 JOIN conferences c ON s.conference_id = c.id
-                LEFT JOIN users u ON s.manager_id = u.id
-                WHERE c.id = (
-                    SELECT id FROM conferences 
-                    WHERE is_active = true 
-                    ORDER BY date_start DESC 
-                    LIMIT 1
-                )
+                WHERE c.is_active = true
                 ORDER BY s.title ASC
             `);
             res.json(sections.rows);
@@ -59,7 +74,7 @@ class PublicController {
     async getStats(req, res) {
         try {
             const confInfo = await pool.query(`
-                SELECT id, title, description, date_start, date_end, location 
+                SELECT id, title, description, date_start, date_end, location, submission_deadline, program_formation_date, proceedings_url 
                 FROM conferences 
                 WHERE is_active = true 
                 ORDER BY date_start DESC 
@@ -103,8 +118,7 @@ class PublicController {
         }
     }
 
-    // 4. Получить ТОЛЬКО ОПУБЛИКОВАННЫЕ доклады (Для страницы "Доклады")
-    // [ИЗМЕНЕНО] Вернул условие s.status = 'published'
+    // 4. Получить принятые и опубликованные доклады (Для страницы "Доклады")
     async getAllAcceptedSubmissions(req, res) {
         try {
             const list = await pool.query(`
@@ -118,7 +132,7 @@ class PublicController {
                 JOIN sections sec ON sub.section_id = sec.id
                 JOIN conferences c ON sec.conference_id = c.id
                 JOIN users u ON sub.user_id = u.id
-                WHERE sub.status = 'published' -- <--- ТОЛЬКО ОПУБЛИКОВАННЫЕ
+                WHERE sub.status IN ('accepted', 'published')
                   AND c.id = (
                       SELECT id FROM conferences 
                       WHERE is_active = true 

@@ -13,6 +13,7 @@ code {
 }
 
 @media print {
+  /* Hide everything outside of print-area */
   body * {
     visibility: hidden;
   }
@@ -24,12 +25,55 @@ code {
     left: 0;
     top: 0;
     width: 100%;
+    margin: 0;
+    padding: 0;
   }
+  
+  /* Make styling formal for printing (black & white, no shadows) */
+  .print-area * {
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #000 !important;
+  }
+
+  .print-area h2 {
+    text-align: center;
+    border-bottom: 2px solid #000 !important;
+    padding-bottom: 10px;
+    margin-bottom: 20px !important;
+  }
+
+  .print-area h4 {
+    border-bottom: 1px solid #000 !important;
+    padding-bottom: 5px;
+    margin-top: 20px !important;
+    font-size: 16pt !important;
+  }
+  
+  .print-area li {
+    border-bottom: 1px dashed #ccc !important;
+  }
+
+  /* Force grid blocks to expand for better readability */
+  .print-area > div[style*="display: grid"] {
+    display: block !important;
+  }
+  
+  .print-area > div > div {
+    margin-bottom: 20px !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
   .no-print {
     display: none !important;
   }
   .print-only {
     display: block !important;
+  }
+  
+  @page {
+    margin: 1.5cm;
   }
 }
 

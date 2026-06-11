@@ -35,7 +35,7 @@ const baseLayout = (content) => `
                 line-height: 56px;
                 font-size: 28px;
                 margin-bottom: 14px;
-              ">🎓</div>
+              "></div>
               <h1 style="
                 margin: 0;
                 color: #ffffff;
@@ -100,7 +100,7 @@ const acceptedTemplate = ({ first_name, last_name, title }) => {
         width:64px; height:64px; border-radius:50%;
         background: #e8f5e9; font-size: 32px;
         border: 3px solid #4caf50;
-      ">✅</div>
+      "></div>
     </div>
 
     <h2 style="
@@ -169,7 +169,7 @@ const rejectedTemplate = ({ first_name, last_name, title }) => {
         width:64px; height:64px; border-radius:50%;
         background: #fce4ec; font-size: 32px;
         border: 3px solid #e53935;
-      ">❌</div>
+      "></div>
     </div>
 
     <h2 style="
@@ -238,7 +238,7 @@ const scheduleTemplate = ({ first_name, last_name, title, date, time, duration }
         width:64px; height:64px; border-radius:50%;
         background: #e3f2fd; font-size: 32px;
         border: 3px solid #0056b3;
-      ">📅</div>
+      "></div>
     </div>
 
     <h2 style="
@@ -288,13 +288,13 @@ const scheduleTemplate = ({ first_name, last_name, title, date, time, duration }
       <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
           <td style="padding: 6px 0;">
-            <span style="color:#888; font-size:13px;">📅 Дата:</span>
+            <span style="color:#888; font-size:13px;"> Дата:</span>
             <strong style="color:#333; font-size:15px; margin-left:8px;">${date}</strong>
           </td>
         </tr>
         <tr>
           <td style="padding: 6px 0;">
-            <span style="color:#888; font-size:13px;">🕐 Время:</span>
+            <span style="color:#888; font-size:13px;"> Время:</span>
             <strong style="color:#333; font-size:15px; margin-left:8px;">${time}</strong>
           </td>
         </tr>
@@ -333,7 +333,7 @@ const publishedTemplate = ({ first_name, last_name, title }) => {
         width:64px; height:64px; border-radius:50%;
         background: #f3e5f5; font-size: 32px;
         border: 3px solid #9c27b0;
-      ">🌟</div>
+      "></div>
     </div>
 
     <h2 style="
@@ -386,4 +386,333 @@ const publishedTemplate = ({ first_name, last_name, title }) => {
   return baseLayout(content);
 };
 
-module.exports = { acceptedTemplate, rejectedTemplate, scheduleTemplate, publishedTemplate };
+/**
+ * Письмо: рецензенту назначен доклад
+ */
+const reviewAssignedTemplate = ({ first_name, last_name, title }) => {
+  const content = `
+    <div style="text-align:center; margin-bottom: 28px;">
+      <div style="
+        display:inline-flex; align-items:center; justify-content:center;
+        width:64px; height:64px; border-radius:50%;
+        background: #e3f2fd; font-size: 32px;
+        border: 3px solid #1565c0;
+      "></div>
+    </div>
+
+    <h2 style="
+      margin: 0 0 8px;
+      text-align: center;
+      color: #1565c0;
+      font-size: 22px;
+      font-weight: 700;
+    ">Вам назначен доклад для рецензирования</h2>
+
+    <p style="color: #333; font-size: 15px; margin: 0 0 20px; line-height: 1.6;">
+      Уважаемый(ая) <strong>${first_name} ${last_name}</strong>,
+    </p>
+
+    <p style="color: #444; font-size: 15px; margin: 0 0 16px; line-height: 1.6;">
+      Программный комитет назначил вам доклад для рецензирования:
+    </p>
+
+    <div style="
+      background: #f0f4ff;
+      border-left: 5px solid #1565c0;
+      border-radius: 6px;
+      padding: 18px 22px;
+      margin: 0 0 24px;
+    ">
+      <p style="margin:0; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#7ca0d4; font-weight:600;">
+        Доклад
+      </p>
+      <p style="margin: 6px 0 0; font-size: 16px; color: #003366; font-weight: 700; line-height: 1.5;">
+        ${title}
+      </p>
+    </div>
+
+    <p style="color: #444; font-size: 15px; margin: 0; line-height: 1.6;">
+      Пожалуйста, войдите в личный кабинет для просмотра и рецензирования доклада.
+    </p>
+
+    <hr style="border:none; border-top: 1px solid #eef0f3; margin: 28px 0;" />
+    <p style="color: #888; font-size: 13px; margin: 0; line-height: 1.6;">
+      Если у вас возникли вопросы, свяжитесь с программным комитетом.
+    </p>
+  `;
+  return baseLayout(content);
+};
+
+/**
+ * Письмо: напоминание рецензенту
+ */
+const reviewReminderTemplate = ({ first_name, last_name, title, days_left }) => {
+  const content = `
+    <div style="text-align:center; margin-bottom: 28px;">
+      <div style="
+        display:inline-flex; align-items:center; justify-content:center;
+        width:64px; height:64px; border-radius:50%;
+        background: #fff3e0; font-size: 32px;
+        border: 3px solid #ef6c00;
+      ">⏰</div>
+    </div>
+
+    <h2 style="
+      margin: 0 0 8px;
+      text-align: center;
+      color: #ef6c00;
+      font-size: 22px;
+      font-weight: 700;
+    ">Напоминание о рецензировании</h2>
+
+    <p style="color: #333; font-size: 15px; margin: 0 0 20px; line-height: 1.6;">
+      Уважаемый(ая) <strong>${first_name} ${last_name}</strong>,
+    </p>
+
+    <p style="color: #444; font-size: 15px; margin: 0 0 16px; line-height: 1.6;">
+      Напоминаем, что до начала конференции осталось <strong>${days_left} дней</strong>.
+      Пожалуйста, завершите рецензирование доклада:
+    </p>
+
+    <div style="
+      background: #fff8f0;
+      border-left: 5px solid #ef6c00;
+      border-radius: 6px;
+      padding: 18px 22px;
+      margin: 0 0 24px;
+    ">
+      <p style="margin:0; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#ffb74d; font-weight:600;">
+        Доклад
+      </p>
+      <p style="margin: 6px 0 0; font-size: 16px; color: #e65100; font-weight: 700; line-height: 1.5;">
+        ${title}
+      </p>
+    </div>
+
+    <hr style="border:none; border-top: 1px solid #eef0f3; margin: 28px 0;" />
+    <p style="color: #888; font-size: 13px; margin: 0; line-height: 1.6;">
+      Если у вас возникли вопросы, свяжитесь с программным комитетом.
+    </p>
+  `;
+  return baseLayout(content);
+};
+
+/**
+ * Письмо: автору — требуется доработка
+ */
+const revisionRequestedTemplate = ({ first_name, last_name, title, reason, comment, attempt, max_attempts }) => {
+  const content = `
+    <div style="text-align:center; margin-bottom: 28px;">
+      <div style="
+        display:inline-flex; align-items:center; justify-content:center;
+        width:64px; height:64px; border-radius:50%;
+        background: #fff3e0; font-size: 32px;
+        border: 3px solid #ff9800;
+      ">️</div>
+    </div>
+
+    <h2 style="
+      margin: 0 0 8px;
+      text-align: center;
+      color: #e65100;
+      font-size: 22px;
+      font-weight: 700;
+    ">Требуется доработка доклада</h2>
+
+    <p style="text-align:center; color:#666; font-size:14px; margin:0 0 28px;">
+      Попытка ${attempt} из ${max_attempts}
+    </p>
+
+    <p style="color: #333; font-size: 15px; margin: 0 0 20px; line-height: 1.6;">
+      Уважаемый(ая) <strong>${first_name} ${last_name}</strong>,
+    </p>
+
+    <p style="color: #444; font-size: 15px; margin: 0 0 16px; line-height: 1.6;">
+      Рецензент отправил замечания по вашему докладу:
+    </p>
+
+    <div style="
+      background: #fff8f0;
+      border-left: 5px solid #ff9800;
+      border-radius: 6px;
+      padding: 18px 22px;
+      margin: 0 0 16px;
+    ">
+      <p style="margin:0; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#ffb74d; font-weight:600;">
+        Доклад
+      </p>
+      <p style="margin: 6px 0 0; font-size: 16px; color: #e65100; font-weight: 700; line-height: 1.5;">
+        ${title}
+      </p>
+    </div>
+
+    ${reason ? `
+    <div style="
+      background: #fce4ec;
+      border-left: 5px solid #e53935;
+      border-radius: 6px;
+      padding: 18px 22px;
+      margin: 0 0 16px;
+    ">
+      <p style="margin:0; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#ef9a9a; font-weight:600;">
+        Причина отклонения
+      </p>
+      <p style="margin: 6px 0 0; font-size: 15px; color: #7f0000; line-height: 1.5;">
+        ${reason}
+      </p>
+    </div>
+    ` : ''}
+
+    ${comment ? `
+    <div style="
+      background: #f5f5f5;
+      border-radius: 6px;
+      padding: 18px 22px;
+      margin: 0 0 24px;
+    ">
+      <p style="margin:0; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#999; font-weight:600;">
+        Комментарий рецензента
+      </p>
+      <p style="margin: 6px 0 0; font-size: 15px; color: #333; line-height: 1.5;">
+        ${comment}
+      </p>
+    </div>
+    ` : ''}
+
+    <p style="color: #444; font-size: 15px; margin: 0; line-height: 1.6;">
+      Пожалуйста, исправьте доклад и отправьте повторно через личный кабинет.
+    </p>
+
+    <hr style="border:none; border-top: 1px solid #eef0f3; margin: 28px 0;" />
+    <p style="color: #888; font-size: 13px; margin: 0; line-height: 1.6;">
+      Если у вас возникли вопросы, свяжитесь с программным комитетом.
+    </p>
+  `;
+  return baseLayout(content);
+};
+
+/**
+ * Письмо: доклад окончательно отклонён
+ */
+const finalRejectedTemplate = ({ first_name, last_name, title }) => {
+  const content = `
+    <div style="text-align:center; margin-bottom: 28px;">
+      <div style="
+        display:inline-flex; align-items:center; justify-content:center;
+        width:64px; height:64px; border-radius:50%;
+        background: #fce4ec; font-size: 32px;
+        border: 3px solid #b71c1c;
+      "></div>
+    </div>
+
+    <h2 style="
+      margin: 0 0 8px;
+      text-align: center;
+      color: #b71c1c;
+      font-size: 22px;
+      font-weight: 700;
+    ">Доклад окончательно отклонён</h2>
+
+    <p style="color: #333; font-size: 15px; margin: 0 0 20px; line-height: 1.6;">
+      Уважаемый(ая) <strong>${first_name} ${last_name}</strong>,
+    </p>
+
+    <p style="color: #444; font-size: 15px; margin: 0 0 16px; line-height: 1.6;">
+      К сожалению, ваш доклад был окончательно отклонён после 3 попыток:
+    </p>
+
+    <div style="
+      background: #fff5f5;
+      border-left: 5px solid #b71c1c;
+      border-radius: 6px;
+      padding: 18px 22px;
+      margin: 0 0 24px;
+    ">
+      <p style="margin:0; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#ef9a9a; font-weight:600;">
+        Доклад
+      </p>
+      <p style="margin: 6px 0 0; font-size: 16px; color: #7f0000; font-weight: 700; line-height: 1.5;">
+        ${title}
+      </p>
+    </div>
+
+    <p style="color: #444; font-size: 15px; margin: 0; line-height: 1.6;">
+      Мы благодарим вас за участие и надеемся увидеть вас на следующей конференции.
+    </p>
+
+    <hr style="border:none; border-top: 1px solid #eef0f3; margin: 28px 0;" />
+    <p style="color: #888; font-size: 13px; margin: 0; line-height: 1.6;">
+      Если у вас возникли вопросы, свяжитесь с программным комитетом.
+    </p>
+  `;
+  return baseLayout(content);
+};
+
+/**
+ * Письмо: ПК — рецензент отправил рецензию
+ */
+const reviewSubmittedTemplate = ({ reviewer_name, title, decision, reason }) => {
+  const isAccepted = decision === 'accepted';
+  const content = `
+    <div style="text-align:center; margin-bottom: 28px;">
+      <div style="
+        display:inline-flex; align-items:center; justify-content:center;
+        width:64px; height:64px; border-radius:50%;
+        background: ${isAccepted ? '#e8f5e9' : '#fce4ec'}; font-size: 32px;
+        border: 3px solid ${isAccepted ? '#4caf50' : '#e53935'};
+      ">${isAccepted ? '' : ''}</div>
+    </div>
+
+    <h2 style="
+      margin: 0 0 8px;
+      text-align: center;
+      color: ${isAccepted ? '#2e7d32' : '#c62828'};
+      font-size: 22px;
+      font-weight: 700;
+    ">Получена рецензия</h2>
+
+    <p style="color: #444; font-size: 15px; margin: 0 0 16px; line-height: 1.6;">
+      Рецензент <strong>${reviewer_name}</strong> ${isAccepted ? 'принял' : 'отклонил'} доклад:
+    </p>
+
+    <div style="
+      background: #f0f4ff;
+      border-left: 5px solid #0056b3;
+      border-radius: 6px;
+      padding: 18px 22px;
+      margin: 0 0 24px;
+    ">
+      <p style="margin:0; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#7ca0d4; font-weight:600;">
+        Доклад
+      </p>
+      <p style="margin: 6px 0 0; font-size: 16px; color: #003366; font-weight: 700; line-height: 1.5;">
+        ${title}
+      </p>
+    </div>
+
+    ${!isAccepted && reason ? `
+    <div style="
+      background: #fce4ec;
+      border-left: 5px solid #e53935;
+      border-radius: 6px;
+      padding: 18px 22px;
+      margin: 0 0 24px;
+    ">
+      <p style="margin:0; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#ef9a9a; font-weight:600;">
+        Причина отклонения
+      </p>
+      <p style="margin: 6px 0 0; font-size: 15px; color: #7f0000; line-height: 1.5;">
+        ${reason}
+      </p>
+    </div>
+    ` : ''}
+
+    <hr style="border:none; border-top: 1px solid #eef0f3; margin: 28px 0;" />
+    <p style="color: #888; font-size: 13px; margin: 0; line-height: 1.6;">
+      Перейдите в панель управления для дальнейших действий.
+    </p>
+  `;
+  return baseLayout(content);
+};
+
+module.exports = { acceptedTemplate, rejectedTemplate, scheduleTemplate, publishedTemplate, reviewAssignedTemplate, reviewReminderTemplate, revisionRequestedTemplate, finalRejectedTemplate, reviewSubmittedTemplate };
