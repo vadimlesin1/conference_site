@@ -28,7 +28,7 @@ const ParticipantDashboard = ({ activeTab, submissions, name, refreshData, activ
     const [showVersionsFor, setShowVersionsFor] = useState(null);
 
     useEffect(() => {
-        fetch("http://localhost:5000/api/public/sections")
+        fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/public/sections")
             .then(res => res.json())
             .then(data => setSections(data))
             .catch(err => console.error(err));
@@ -73,7 +73,7 @@ const ParticipantDashboard = ({ activeTab, submissions, name, refreshData, activ
         if (file) formData.append("file", file);
 
         try {
-            const response = await fetch(`http://localhost:5000/api/submissions/${editingSub.id}`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/submissions/${editingSub.id}`, {
                 method: "PUT",
                 headers: { token: localStorage.token },
                 body: formData
@@ -97,7 +97,7 @@ const ParticipantDashboard = ({ activeTab, submissions, name, refreshData, activ
     const handleDelete = async (id) => {
         if (!window.confirm(language === 'ru' ? "Удалить этот доклад?" : "Delete this paper?")) return;
         try {
-            const res = await fetch(`http://localhost:5000/api/submissions/${id}`, {
+            const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/submissions/${id}`, {
                 method: "DELETE",
                 headers: { token: localStorage.token }
             });
@@ -116,7 +116,7 @@ const ParticipantDashboard = ({ activeTab, submissions, name, refreshData, activ
     const handlePaySubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`http://localhost:5000/api/submissions/${paymentModalSub.id}/payment`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/submissions/${paymentModalSub.id}/payment`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json", token: localStorage.token },
                 body: JSON.stringify({ payment_status: 'pending_verification' })
@@ -155,7 +155,7 @@ const ParticipantDashboard = ({ activeTab, submissions, name, refreshData, activ
         formData.append('file', resubmitFile);
 
         try {
-            const res = await fetch(`http://localhost:5000/api/submissions/${resubmitSub.id}/resubmit`, {
+            const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/submissions/${resubmitSub.id}/resubmit`, {
                 method: 'PUT',
                 headers: { token: localStorage.token },
                 body: formData
@@ -177,7 +177,7 @@ const ParticipantDashboard = ({ activeTab, submissions, name, refreshData, activ
 
     const loadVersions = async (subId) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/submissions/${subId}/versions`, {
+            const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/submissions/${subId}/versions`, {
                 headers: { token: localStorage.token }
             });
             if (res.ok) {

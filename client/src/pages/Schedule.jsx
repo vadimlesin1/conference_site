@@ -26,7 +26,7 @@ const Schedule = () => {
 
     const fetchSchedule = async () => {
         try {
-            const response = await fetch("http://localhost:5000/api/public/schedule");
+            const response = await fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/public/schedule");
             const data = await response.json();
             setSchedule(data);
             setLoading(false);

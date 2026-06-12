@@ -10,7 +10,7 @@ const Proceedings = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const res = await fetch("http://localhost:5000/api/public/stats");
+                const res = await fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/public/stats");
                 if (res.ok) {
                     const data = await res.json();
                     if (data.info) {

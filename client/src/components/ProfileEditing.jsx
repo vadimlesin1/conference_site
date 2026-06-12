@@ -19,7 +19,7 @@ const ProfileEditing = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const res = await fetch("http://localhost:5000/api/dashboard/profile", {
+                const res = await fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/dashboard/profile", {
                     method: "GET",
                     headers: { token: localStorage.token }
                 });
@@ -52,7 +52,7 @@ const ProfileEditing = () => {
         e.preventDefault();
         setSaving(true);
         try {
-            const res = await fetch("http://localhost:5000/api/dashboard/profile", {
+            const res = await fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/dashboard/profile", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json", token: localStorage.token },
                 body: JSON.stringify(formData)

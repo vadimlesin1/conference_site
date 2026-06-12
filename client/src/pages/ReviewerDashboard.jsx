@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import ConferenceInfoBlock from '../components/ConferenceInfoBlock';
 
-const API = 'http://localhost:5000/api';
+const API = (process.env.REACT_APP_API_URL || 'http://localhost:5000') + '/api';
 
 const REJECTION_REASONS = [
     'Несоответствие тематике конференции',

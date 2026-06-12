@@ -16,15 +16,15 @@ const Home = () => {
         const fetchData = async () => {
             try {
                 // 1. Секции
-                const secRes = await fetch("http://localhost:5000/api/public/sections");
+                const secRes = await fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/public/sections");
                 if (secRes.ok) setSections(await secRes.json());
 
                 // 2. Статистика
-                const statRes = await fetch("http://localhost:5000/api/public/stats");
+                const statRes = await fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/public/stats");
                 if (statRes.ok) setStatsData(await statRes.json());
 
                 // 3. Новости
-                const newsRes = await fetch("http://localhost:5000/api/public/news");
+                const newsRes = await fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/public/news");
                 if (newsRes.ok) setNews(await newsRes.json());
 
             } catch (err) {

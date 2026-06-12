@@ -19,7 +19,7 @@ const Navbar = () => {
         const checkAuth = async () => {
             if (localStorage.getItem("token")) {
                 try {
-                    const response = await fetch("http://localhost:5000/api/dashboard/", {
+                    const response = await fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/dashboard/", {
                         method: "GET",
                         headers: { token: localStorage.token }
                     });
@@ -45,7 +45,7 @@ const Navbar = () => {
     // Подсчёт непрочитанных
     const fetchUnreadCount = async () => {
         try {
-            const res = await fetch("http://localhost:5000/api/notifications/unread-count", {
+            const res = await fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/notifications/unread-count", {
                 headers: { token: localStorage.token }
             });
             if (res.ok) {
@@ -60,7 +60,7 @@ const Navbar = () => {
     // Загрузить уведомления
     const fetchNotifications = async () => {
         try {
-            const res = await fetch("http://localhost:5000/api/notifications/", {
+            const res = await fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/notifications/", {
                 headers: { token: localStorage.token }
             });
             if (res.ok) {
@@ -75,7 +75,7 @@ const Navbar = () => {
     // Пометить прочитанными
     const markAllRead = async () => {
         try {
-            await fetch("http://localhost:5000/api/notifications/mark-read", {
+            await fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/notifications/mark-read", {
                 method: "PUT",
                 headers: { token: localStorage.token }
             });

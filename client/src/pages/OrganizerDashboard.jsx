@@ -43,13 +43,13 @@ const OrganizerDashboard = ({ activeTab, activeConference }) => {
         try {
             const headers = { token: localStorage.token };
             const [resSec, resUsers, resSched, resPublish, resNews, resStats, resConf] = await Promise.all([
-                fetch("http://localhost:5000/api/organizer/sections", { headers }),
-                fetch("http://localhost:5000/api/organizer/users", { headers }),
-                fetch("http://localhost:5000/api/organizer/schedule", { headers }),
-                fetch("http://localhost:5000/api/organizer/publish-list", { headers }),
-                fetch("http://localhost:5000/api/organizer/news", { headers }),
-                fetch("http://localhost:5000/api/organizer/statistics", { headers }),
-                fetch("http://localhost:5000/api/organizer/conferences", { headers })
+                fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/organizer/sections", { headers }),
+                fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/organizer/users", { headers }),
+                fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/organizer/schedule", { headers }),
+                fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/organizer/publish-list", { headers }),
+                fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/organizer/news", { headers }),
+                fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/organizer/statistics", { headers }),
+                fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/organizer/conferences", { headers })
             ]);
 
             if (resSec.ok) setSections(await resSec.json());
@@ -77,7 +77,7 @@ const OrganizerDashboard = ({ activeTab, activeConference }) => {
                 return;
             }
             const body = { title: newTitle, conference_id: activeConference.id, managers_text: managersText, room: newRoom };
-            const response = await fetch("http://localhost:5000/api/organizer/sections", {
+            const response = await fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/organizer/sections", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", token: localStorage.token },
                 body: JSON.stringify(body)
@@ -102,7 +102,7 @@ const OrganizerDashboard = ({ activeTab, activeConference }) => {
     const saveSectionChanges = async (id) => {
         try {
             const headers = { "Content-Type": "application/json", token: localStorage.token };
-            await fetch(`http://localhost:5000/api/organizer/sections/${id}/info`, {
+            await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/organizer/sections/${id}/info`, {
                 method: "PUT", headers, body: JSON.stringify({ title: editFormData.title, room: editFormData.room, managers_text: editFormData.managers_text })
             });
             setEditingSectionId(null);
@@ -114,7 +114,7 @@ const OrganizerDashboard = ({ activeTab, activeConference }) => {
     // [ИСПРАВЛЕНО] Функция назначения ДАТЫ СЕКЦИИ
     const assignDay = async (id, date) => {
         try {
-            const response = await fetch(`http://localhost:5000/api/organizer/sections/${id}/date`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/organizer/sections/${id}/date`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json", token: localStorage.token },
                 body: JSON.stringify({ section_date: date })
@@ -132,7 +132,7 @@ const OrganizerDashboard = ({ activeTab, activeConference }) => {
     const changeRole = async (userId, newRoleId) => {
         if (!window.confirm("Вы уверены?")) return;
         try {
-            const response = await fetch("http://localhost:5000/api/organizer/role", {
+            const response = await fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/organizer/role", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json", token: localStorage.token },
                 body: JSON.stringify({ userId, roleId: newRoleId })
@@ -143,7 +143,7 @@ const OrganizerDashboard = ({ activeTab, activeConference }) => {
 
     const handlePublish = async (id) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/organizer/publish/${id}`, {
+            const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/organizer/publish/${id}`, {
                 method: "PUT", headers: { token: localStorage.token }
             });
             if (res.ok) {
@@ -154,7 +154,7 @@ const OrganizerDashboard = ({ activeTab, activeConference }) => {
 
     const handleConfirmPayment = async (id) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/submissions/${id}/payment`, {
+            const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/submissions/${id}/payment`, {
                 method: "PUT", headers: { "Content-Type": "application/json", token: localStorage.token },
                 body: JSON.stringify({ payment_status: 'paid' })
             });
@@ -170,7 +170,7 @@ const OrganizerDashboard = ({ activeTab, activeConference }) => {
     const createNews = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch("http://localhost:5000/api/organizer/news", {
+            const res = await fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/organizer/news", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", token: localStorage.token },
                 body: JSON.stringify({ title: newsTitle, content: newsContent })
@@ -185,7 +185,7 @@ const OrganizerDashboard = ({ activeTab, activeConference }) => {
     const deleteNews = async (id) => {
         if (!window.confirm("Удалить новость?")) return;
         try {
-            await fetch(`http://localhost:5000/api/organizer/news/${id}`, {
+            await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/organizer/news/${id}`, {
                 method: "DELETE", headers: { token: localStorage.token }
             });
             loadData();
@@ -261,7 +261,7 @@ const OrganizerDashboard = ({ activeTab, activeConference }) => {
                                         program_formation_date: form.program_formation_date.value || null
                                     };
                                     try {
-                                        const res = await fetch("http://localhost:5000/api/organizer/conferences", {
+                                        const res = await fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/organizer/conferences", {
                                             method: "POST",
                                             headers: { "Content-Type": "application/json", token: localStorage.token },
                                             body: JSON.stringify(body)
@@ -360,7 +360,7 @@ const OrganizerDashboard = ({ activeTab, activeConference }) => {
                                                     <button onClick={async () => {
                                                         if (window.confirm(`Активировать конференцию "${conf.title}"? Текущая активная будет деактивирована.`)) {
                                                             try {
-                                                                await fetch(`http://localhost:5000/api/organizer/conferences/${conf.id}/activate`, {
+                                                                await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/organizer/conferences/${conf.id}/activate`, {
                                                                     method: "PUT",
                                                                     headers: { token: localStorage.token }
                                                                 });
@@ -397,7 +397,7 @@ const OrganizerDashboard = ({ activeTab, activeConference }) => {
                                             program_formation_date: form.program_formation_date.value || null
                                         };
                                         try {
-                                            const res = await fetch(`http://localhost:5000/api/organizer/conferences/${editingConference.id}`, {
+                                            const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/organizer/conferences/${editingConference.id}`, {
                                                 method: "PUT",
                                                 headers: { "Content-Type": "application/json", token: localStorage.token },
                                                 body: JSON.stringify(body)
@@ -721,7 +721,7 @@ const OrganizerDashboard = ({ activeTab, activeConference }) => {
                                     formData.append("file", fileInput.files[0]);
 
                                     try {
-                                        const res = await fetch(`http://localhost:5000/api/organizer/conferences/${activeConference.id}/proceedings`, {
+                                        const res = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/organizer/conferences/${activeConference.id}/proceedings`, {
                                             method: "POST",
                                             headers: { token: localStorage.token },
                                             body: formData

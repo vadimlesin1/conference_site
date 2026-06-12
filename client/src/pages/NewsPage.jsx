@@ -11,7 +11,7 @@ const NewsPage = () => {
     useEffect(() => {
         const fetchNews = async () => {
             try {
-                const res = await fetch("http://localhost:5000/api/public/news");
+                const res = await fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/public/news");
                 if (res.ok) setNews(await res.json());
             } catch (err) {
                 console.error("Ошибка загрузки новостей:", err);

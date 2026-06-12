@@ -11,7 +11,7 @@ const ArchiveDetails = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch(`http://localhost:5000/api/archive/${id}`)
+        fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/archive/${id}`)
             .then(res => res.json())
             .then(json => {
                 setData(json);

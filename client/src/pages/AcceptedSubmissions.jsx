@@ -12,7 +12,7 @@ const AcceptedSubmissions = () => {
     const [selectedSection, setSelectedSection] = useState("all");
 
     useEffect(() => {
-        fetch("http://localhost:5000/api/public/submissions")
+        fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/public/submissions")
             .then(res => res.json())
             .then(data => {
                 setSubmissions(data);

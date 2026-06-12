@@ -21,7 +21,7 @@ const CreateSubmission = () => {
     useEffect(() => {
         const fetchSections = async () => {
             try {
-                const response = await fetch("http://localhost:5000/api/public/sections");
+                const response = await fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/public/sections");
                 const jsonData = await response.json();
                 setSections(jsonData);
                 if (jsonData.length > 0) {
@@ -55,7 +55,7 @@ const CreateSubmission = () => {
         }
 
         try {
-            const response = await fetch("http://localhost:5000/api/submissions", {
+            const response = await fetch((process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/submissions", {
                 method: "POST",
                 headers: { token: localStorage.token },
                 body: formData

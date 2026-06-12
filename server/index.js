@@ -41,8 +41,9 @@ app.get('/api/archive/:id', archiveController.getArchiveDetails);
 app.use('/uploads', express.static('uploads')); // или path.join(__dirname, 'uploads')
 
 
-app.listen(5000, () => {
-    console.log("server has started on port 5000");
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`server has started on port ${PORT}`);
 });
 
 // Отлавливаем скрытые ошибки, из-за которых сервер может тихо падать
